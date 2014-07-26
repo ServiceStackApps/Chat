@@ -1,6 +1,5 @@
 @inherits ViewPage
 @{
-    Layout = "Empty";
     ViewBag.Title = "Server Sent Events Chat";
     var channel = Request.QueryString["channel"] ?? "home";
 }
@@ -249,11 +248,9 @@
 
 <script>
     var source = new EventSource('/event-stream?channel=@channel&t=' + new Date().getTime()); //disable cache
+    source.addEventListener('error', function (e) { addEntry({ msg: "ERROR!", cls: "error" }); }, false);
 
-    source.addEventListener('error', function (e) {
-        addEntry({ msg: "ERROR!", cls: "error" });
-    }, false);
-
+    var $txtMsg = $("#txtMsg").focus(), activeSub = null;
     $.getJSON("/event-subscribers?channel=@channel", function (users) {
         var usersMap = {};
         $.map(users, function (user) { usersMap[user.userId] = user; });
@@ -261,15 +258,6 @@
         $("#users").html(html);
     });
 
-    var $txtMsg = $("#txtMsg");
-    $txtMsg.focus();
-
-    function createUser(user) {
-        return "<div class='user u_" + user.userId + "'><img src='" + user.profileUrl + "'/><span data-id='" +
-            user.userId + "' data-click='privateMsg'>" + user.displayName + "</span></div>";
-    }
-
-    var activeSub = null;
     $.ss.eventReceivers = { "window": window, "document": document };
     $(source).handleServerEvents({
         success: function (selector, msg, json) {
@@ -277,18 +265,15 @@
         },
         handlers: {
             onConnect: function (user) {
-                console.log('onConnect', user);
                 activeSub = user;
                 $("#me").html('<span>Welcome, ' + user.displayName + '</span>' + '<img src="' + user.profileUrl + '"/>');
                 addEntry({ msg: "CONNECTED!", cls: "open" });
             },
             onJoin: function (user) {
-                console.log('onJoin', user);
                 $("#users .u_" + user.userId).remove();
                 $("#users").prepend(createUser(user));
             },
             onLeave: function (user) {
-                console.log('onLeave', user);
                 if (activeSub != null && user.userId != activeSub.userId)
                     $("#users .u_" + user.userId).remove();
             },
@@ -316,15 +301,10 @@
             }
         }
     });
-
     var templates = {
         youtube: '<iframe width="640" height="360" src="//www.youtube.com/embed/{id}?autoplay=1" frameborder="0" allowfullscreen></iframe>',
         generic: '<iframe width="640" height="360" src="{id}" frameborder="0"></iframe>'
     };
-
-    $(document).on('customEvent', function (e, msg, msgEvent) {
-        addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event" });
-    });
 
     $(document).bindHandlers({
         announce: function (msg) {
@@ -346,6 +326,8 @@
         addReceiver: function (name) {
             $.ss.eventReceivers[name] = window[name];
         }
+    }).on('customEvent', function (e, msg, msgEvent) {
+        addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event" });
     });
 
     function addEntry(o) {
@@ -358,9 +340,12 @@
         $("#log").append("<div id='m_" + (o.id || "0") + "' class='msg " + highlight + o.cls + "'>" +
             user + time + "<div>" + o.msg + "</div>" + "</div>");
     }
+    function createUser(user) {
+        return "<div class='user u_" + user.userId + "'><img src='" + user.profileUrl + "'/><span data-id='" +
+            user.userId + "' data-click='privateMsg'>" + user.displayName + "</span></div>";
+    }
 
-    var historyIndex = -1;
-    var msgHistory = [];
+    var msgHistory = [], historyIndex = -1;
     function postMsg() {
         var msg = $txtMsg.val(), parts, to = null;
         msgHistory.push(msg);
@@ -388,6 +373,7 @@
         $txtMsg.val("");
     }
     $("#btnSend").click(postMsg);
+
     $txtMsg.keydown(function (e) {
         var keycode = (e.keyCode ? e.keyCode : e.which);
         if ($.ss.getSelection()) {
@@ -410,8 +396,7 @@
         } else {
             historyIndex = -1;
         }
-    });
-    $txtMsg.keyup(function (e) {
+    }).keyup(function (e) {
         if (!$.ss.getSelection() && this.value[0] == '@@' && this.value.indexOf(' ') < 0) {
             var partialVal = this.value.substring(1);
             var matchingNames = $.grep($("#users .user span")
