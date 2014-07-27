@@ -64,6 +64,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="default.css" />
     <Content Include="Global.asax" />
     <Content Include="img\facebook_normal.png" />
     <Content Include="img\favicon.png" />
