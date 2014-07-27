@@ -66,6 +66,7 @@
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="img\facebook_normal.png" />
+    <Content Include="img\favicon.png" />
     <Content Include="img\github_normal.png" />
     <Content Include="img\twitter_normal.png" />
     <Content Include="jquery-2.1.1.min.js" />
