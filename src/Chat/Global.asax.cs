@@ -2,6 +2,8 @@
 using System.Threading;
 using Funq;
 using ServiceStack;
+using ServiceStack.Auth;
+using ServiceStack.Configuration;
 using ServiceStack.Razor;
 using ServiceStack.Text;
 
@@ -14,8 +16,19 @@ namespace Chat
         public override void Configure(Container container)
         {
             JsConfig.EmitCamelCaseNames = true;
+            var appSettings = new AppSettings();
+
             Plugins.Add(new RazorFormat());
             Plugins.Add(new ServerEventsFeature());
+
+            //Register all Authentication methods you want to enable for this web app.            
+            Plugins.Add(new AuthFeature(
+                () => new AuthUserSession(),
+                new IAuthProvider[] {
+                    new TwitterAuthProvider(appSettings),       //Sign-in with Twitter
+                    new FacebookAuthProvider(appSettings),      //Sign-in with Facebook
+                    new GithubAuthProvider(appSettings),        //Sign-in with GitHub OAuth Provider
+                }));
         }
     }
 
