@@ -132,15 +132,15 @@ li {
 .twitter { background: url(/img/twitter_normal.png) no-repeat; }
 .facebook { background: url(/img/facebook_normal.png) no-repeat; }
 .github { background: url(/img/github_normal.png) no-repeat; }
-#me {
+#welcome {
     float: left;
     margin: 0 5px 0 0;
     color: #f1f1f1;
 }
-#me span {
+#welcome span {
     line-height: 24px;
 }
-#me img {
+#welcome img {
     height: 24px; 
     margin: 0 0 0 5px;
     vertical-align: bottom;
