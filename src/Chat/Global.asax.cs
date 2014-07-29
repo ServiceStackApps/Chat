@@ -11,7 +11,7 @@ namespace Chat
 {
     public class AppHost : AppHostBase
     {
-        public AppHost() : base("Chat", typeof(ServerEventsService).Assembly) {}
+        public AppHost() : base("Chat", typeof(ServerEventsServices).Assembly) {}
 
         public override void Configure(Container container)
         {
@@ -63,18 +63,40 @@ namespace Chat
         public string Selector { get; set; }
     }
 
-    public class ServerEventsService : Service
+    public class ServerEventsServices : Service
     {
         private static long msgId;
 
         public IServerEvents ServerEvents { get; set; }
 
-        public object Any(PostChatToChannel request)
+        public void Any(PostRawToChannel request)
         {
+            // Ensure the subscription sending this notification is still active
             var sub = ServerEvents.GetSubscription(request.From);
             if (sub == null)
                 throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
 
+            // Check to see if this is a private message to a specific user
+            if (request.ToUserId != null)
+            {
+                // Only notify that specific user
+                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, request.Message);
+            }
+            else
+            {
+                // Notify everyone in the channel for public messages
+                ServerEvents.NotifyChannel(request.Channel, request.Selector, request.Message);
+            }
+        }
+
+        public object Any(PostChatToChannel request)
+        {
+            // Ensure the subscription sending this notification is still active
+            var sub = ServerEvents.GetSubscription(request.From);
+            if (sub == null)
+                throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
+
+            // Create a DTO ChatMessage to hold all required info about this message
             var msg = new ChatMessage
             {
                 Id = Interlocked.Increment(ref msgId),
@@ -83,39 +105,31 @@ namespace Chat
                 Message = request.Message,
             };
 
+            // Check to see if this is a private message to a specific user
             if (request.ToUserId != null)
             {
+                // Mark the message as private so it can be displayed differently in Chat
                 msg.Private = true;
+                // Send the message to the specific user Id
                 ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
+
+                // Also provide UI feedback to the user sending the private message so they
+                // can see what was sent. Relay it to all senders active subscriptions 
                 var toSubs = ServerEvents.GetSubscriptionsByUserId(request.ToUserId);
                 foreach (var toSub in toSubs)
                 {
+                    // Change the message format to contain who the private message was sent to
                     msg.Message = "@{0}: {1}".Fmt(toSub.DisplayName, msg.Message);
                     ServerEvents.NotifySubscription(request.From, request.Selector, msg);
                 }
             }
             else
             {
+                // Notify everyone in the channel for public messages
                 ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
             }
 
             return msg;
-        }
-
-        public void Any(PostRawToChannel request)
-        {
-            var sub = ServerEvents.GetSubscription(request.From);
-            if (sub == null)
-                throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
-
-            if (request.ToUserId != null)
-            {
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, request.Message);
-            }
-            else
-            {
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, request.Message);
-            }
         }
     }
 
