@@ -68,15 +68,15 @@
 
 <script>
     var source = new EventSource('/event-stream?channel=@channel&t=' + new Date().getTime()); //disable cache
-    source.addEventListener('error', function (e) { addEntry({ msg: "ERROR!", cls: "error" }); }, false);
+    source.addEventListener('error', function(e) { addEntry({ msg: "ERROR!", cls: "error" }); }, false);
 
     var $txtMsg = $("#txtMsg").focus(), usersMap = {}, refCounter = {}, activeSub = null;
-    $.getJSON("/event-subscribers?channel=@channel", function (users) {
+    $.getJSON("/event-subscribers?channel=@channel", function(users) {
         $.map(users, function(user) {
             usersMap[user.userId] = user;
             refCounter[user.userId] = (refCounter[user.userId] || 0) + 1;
         });
-        var html = $.map(usersMap, function (user) { return createUser(user); }).join('');
+        var html = $.map(usersMap, function(user) { return createUser(user); }).join('');
         $("#users").html(html);
     });
 
@@ -132,7 +132,7 @@
     $(document).bindHandlers({
         announce: function (msg) {
             $("#announce").html(msg).fadeIn('fast');
-            setTimeout(function () { $("#announce").fadeOut('slow'); }, 2000);
+            setTimeout(function() { $("#announce").fadeOut('slow'); }, 2000);
         },
         toggle: function () {
             $(this).toggle();
@@ -149,7 +149,7 @@
         addReceiver: function (name) {
             $.ss.eventReceivers[name] = window[name];
         }
-    }).on('customEvent', function (e, msg, msgEvent) {
+    }).on('customEvent', function(e, msg, msgEvent) {
         addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event" });
     });
 
@@ -180,7 +180,7 @@
                 to = activeSub.userId;
             } else {
                 var matches = $.grep($("#users .user span"),
-                    function (x) { return x.innerHTML.replace(" ", "").toLowerCase() === toName.toLowerCase(); });
+                    function(x) { return x.innerHTML.replace(" ", "").toLowerCase() === toName.toLowerCase(); });
                 to = matches.length > 0 ? matches[0].getAttribute("data-id") : null;
             }
             msg = parts[1];
@@ -197,7 +197,7 @@
     }
     $("#btnSend").click(postMsg);
 
-    $txtMsg.keydown(function (e) {
+    $txtMsg.keydown(function(e) {
         var keycode = (e.keyCode ? e.keyCode : e.which);
         if ($.ss.getSelection()) {
             if (keycode == '9' || keycode == '13' || keycode == '32' || keycode == '39') {
@@ -223,7 +223,7 @@
         if (!$.ss.getSelection() && this.value[0] == '@@' && this.value.indexOf(' ') < 0) {
             var partialVal = this.value.substring(1);
             var matchingNames = $.grep($("#users .user span")
-                .map(function () { return this.innerHTML.replace(" ", ""); }), function (x) {
+                .map(function() { return this.innerHTML.replace(" ", ""); }), function(x) {
                     return x.substring(0, partialVal.length).toLowerCase() === partialVal.toLowerCase()
                         && x.toLowerCase() != activeSub.displayName.toLowerCase();
                 });
