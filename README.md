@@ -315,7 +315,7 @@ All server event handler options also support a postfix jQuery selector for spec
 
     cmd.{handler}${jQuerySelector}
 
-An concrete example for calling the above API would be:
+A concrete example for calling the above API would be:
 
     cmd.paintGreen$#btnPaint
 
@@ -388,7 +388,7 @@ Support for receivers is available in the following format:
 
 ### Registering Receivers
 
-Registering a receiver can be either be done by adding it to the `$.ss.eventReceivers` map with the name you want the object instance and the name you want it to be exported as. E.g. The `window` and `document` global objects can be setup to receive messages with:
+Registering a receiver can be either be done by adding it to the global `$.ss.eventReceivers` map with the object instance and the name you want it to be exported as. E.g. The `window` and `document` global objects can be setup to receive messages with:
 
 ```javascript
 $.ss.eventReceivers = { 
@@ -467,7 +467,7 @@ $.getJSON("/event-subscribers?channel=@channel", function (users) {
 });
 ```
 
-As a single user can have multiple subscriptions (e.g. multiple tabs open) users are merged into a single `usersMap` so each user is only listed once in the users list and a `refCounter` is maintained with the number of subscriptions each user has, so we know can tell when the user has no more active subscriptions and can remove them from the list.
+As a single user can have multiple subscriptions (e.g. multiple tabs open) users are merged into a single `usersMap` so each user is only listed once in the users list and a `refCounter` is maintained with the number of subscriptions each user has, so we're able to tell when the user has no more active subscriptions and can remove them from the list.
 
 ### Chat box
 
@@ -489,7 +489,7 @@ You can specify to use an alternative selector by prefixing the message with a `
 
     /cmd.announce This is your captain speaking ...
 
-When a selector is specified in Chat it routes the message to `/channels/{Channel}/raw` route which passes the text through as-is. Normal Chat entries are instead posted to the `/channels/{Channel}/chat` service, adding adds additional metadata to the chat message with the user id and name of the sender so it can also be displayed in the chat log. The Javascript code that does the routing is simply: 
+When a selector is specified in Chat it routes the message to the `/channels/{Channel}/raw` Service which passes the raw message through as a string. Normal Chat entries are instead posted to the `/channels/{Channel}/chat` Service, adding additional metadata to the chat message with the user id and name of the sender so it can be displayed in the chat log. The Javascript code that calls both Services is simply: 
 
 ```javascript
 if (msg[0] == "/") {
@@ -515,7 +515,7 @@ There's also a special `@me` alias to send a message to yourself, e.g:
 
 ## Server Event Services
 
-By default ServiceStack doesn't expose any Services that can send notifications to other users by default.  It's left up to your application what functionality and level of granularity you wish to enable for your Application. You send notifications in your services `IServerEvents`
+By default ServiceStack doesn't expose any Services that can send notifications to other users by default.  It's left up to your application as to what functionality and level of granularity should be enabled for your Application. Your Services can send notifications via the `IServerEvents` provider.
 
 Below is the annotated implementation for both Web Services used by Chat. The `PostRawToChannel` is a simple implementation that just relays the message sent to all users in the channel or just a specific user if `ToUserId` parameter is specified.
 
