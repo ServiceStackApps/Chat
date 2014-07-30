@@ -77,7 +77,7 @@ class ServerEventsFeature
     UnRegisterPath = "/event-unregister";    // Where to unregister your subscription
     SubscribersPath = "/event-subscribers";  // Where to view public info of channel subscribers 
 
-    Timeout = TimeSpan.FromSeconds(30);           // How long to wait for a heartbeat before unsubscribing
+    Timeout = TimeSpan.FromSeconds(30);      // How long to wait for a heartbeat before unsubscribing
     HeartbeatInterval = TimeSpan.FromSeconds(10); // Client Interval for sending heartbeat messages
 
     NotifyChannelOfSubscriptions = true;          // Send notifications when subscribers join/leave
@@ -91,7 +91,7 @@ There are also a number of hooks available providing entry points where custom l
 ```csharp
 class ServerEventsFeature
 {
-    Action<IEventSubscription, Dictionary<string, string>> OnConnect; // Filter for OnConnect messages
+    Action<IEventSubscription, Dictionary<string, string>> OnConnect; //Filter OnConnect messages
 
     Action<IEventSubscription, IRequest> OnCreated;  // Fired when an Subscription is created
     Action<IEventSubscription> OnSubscribe;          // Fired when subscription is registered 
@@ -113,7 +113,7 @@ public interface IServerEvents
 
     void NotifyChannel(string channel, string selector, object message);
 
-    void NotifySubscription(string subscriptionId, string selector, object message, string channel = null);
+    void NotifySubscription(string subId, string selector, object message, string channel=null);
 
     void NotifyUserId(string userId, string selector, object message, string channel = null);
 
@@ -140,14 +140,16 @@ public interface IServerEvents
 The API's your Services predominantly deal with are the **External API's** which allow sending of messages at different levels of granularity. As Server Events have deep integration with ServiceStack's [Sessions](https://github.com/ServiceStack/ServiceStack/wiki/Sessions) and [Authentication Providers](https://github.com/ServiceStack/ServiceStack/wiki/Authentication-and-authorization) you're also able to notify specific users by either:
 
 ```csharp
-`NotifyUserId()   // UserAuthId
-`NotifyUserName() // UserName
-`NotifySession()  // Permanent Session Id (ss-pid)
+NotifyUserId()   // UserAuthId
+NotifyUserName() // UserName
+NotifySession()  // Permanent Session Id (ss-pid)
 ```
 
 Whilst these all provide different ways to send a message to a single authenticated user, any user can be connected to multiple subscriptions at any one time (e.g. by having multiple tabs open). Each one of these subscriptions is uniquely identified by a `subscriptionId` which you can send a message with using: 
 
-  - `NotifySubscription()`   - Unique Subscription Id
+```csharp
+NotifySubscription() // Unique Subscription Id
+```
 
 There are also API's to retrieve a users single event subscription as well as all subscriptions for a user:
 
@@ -317,7 +319,7 @@ An concrete example for calling the above API would be:
 
     cmd.paintGreen$#btnPaint
 
-Which will bind `this` to the `#btnSubmit` HTML Element, retaining the same behavior as if it were called with `data-click="paintGreen".
+Which will bind `this` to the `#btnSubmit` HTML Element, retaining the same behavior as if it were called with `data-click="paintGreen"`.
 
 > Note: Spaces in jQuery selectors need to be encoded with `%20`
 
@@ -327,7 +329,7 @@ As it's a popular use-case Server Events also has native support for modifying C
 
     css.{propertyName}${jQuerySelector} {propertyValue}
 
-Where the message is the property value, which will roughly translate to:
+Where the message is the property value, which roughly translates to:
 
     $({jQuerySelector}).css({propertyName}, {propertyValue})
 
@@ -483,7 +485,7 @@ chat: function (m, e) {
 
 ### Specifying a selector
 
-You can specify to use an alternative selector by prefixing the message with a `/`, e.g: 
+You can specify to use an alternative selector by prefixing the message with a `/{selector}`, e.g: 
 
     /cmd.announce This is your captain speaking ...
 
