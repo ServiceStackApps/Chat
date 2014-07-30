@@ -77,7 +77,7 @@ class ServerEventsFeature
     UnRegisterPath = "/event-unregister";    // Where to unregister your subscription
     SubscribersPath = "/event-subscribers";  // Where to view public info of channel subscribers 
 
-    Timeout = TimeSpan.FromSeconds(30);      // How long to wait for a heartbeat before unsubscribing
+    Timeout = TimeSpan.FromSeconds(30);      // How long to wait for heartbeat before unsubscribing
     HeartbeatInterval = TimeSpan.FromSeconds(10); // Client Interval for sending heartbeat messages
 
     NotifyChannelOfSubscriptions = true;          // Send notifications when subscribers join/leave
