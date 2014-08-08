@@ -27,6 +27,8 @@ Chat showcases ServiceStack's new support for [Server Sent Events](http://www.ht
 
 ![Chat Overview](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/apps/Chat/chat-overview.gif)
 
+<img src="https://github.com/ServiceStack/Assets/blob/master/img/apps/Chat/vs-sln.png" width="257" align="right" hspace="10">
+
 ### Super lean front and back
 
 All this fits in a tiny footprint using just vanilla jQuery weighing just:
