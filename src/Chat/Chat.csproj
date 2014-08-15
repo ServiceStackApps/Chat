@@ -71,7 +71,9 @@
     <Content Include="img\github_normal.png" />
     <Content Include="img\twitter_normal.png" />
     <Content Include="jquery-2.1.1.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -81,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\PublishProfiles\WebDeploy.pubxml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

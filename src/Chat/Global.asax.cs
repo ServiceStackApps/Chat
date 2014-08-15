@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using Funq;
 using ServiceStack;
@@ -16,7 +17,10 @@ namespace Chat
         public override void Configure(Container container)
         {
             JsConfig.EmitCamelCaseNames = true;
-            var appSettings = new AppSettings();
+            var liveSettings = "~/appsettings.txt".MapHostAbsolutePath();
+            var appSettings = File.Exists(liveSettings)
+                ? (IAppSettings)new TextFileSettings(liveSettings)
+                : new AppSettings();
 
             Plugins.Add(new RazorFormat());
             Plugins.Add(new ServerEventsFeature());
@@ -25,9 +29,9 @@ namespace Chat
             Plugins.Add(new AuthFeature(
                 () => new AuthUserSession(),
                 new IAuthProvider[] {
-                    new TwitterAuthProvider(appSettings),       //Sign-in with Twitter
-                    new FacebookAuthProvider(appSettings),      //Sign-in with Facebook
-                    new GithubAuthProvider(appSettings),        //Sign-in with GitHub OAuth Provider
+                    new TwitterAuthProvider(appSettings),   //Sign-in with Twitter
+                    new FacebookAuthProvider(appSettings),  //Sign-in with Facebook
+                    new GithubAuthProvider(appSettings),    //Sign-in with GitHub OAuth Provider
                 }));
         }
     }
