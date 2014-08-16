@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using Funq;
 using ServiceStack;
@@ -24,6 +25,8 @@ namespace Chat
 
             Plugins.Add(new RazorFormat());
             Plugins.Add(new ServerEventsFeature());
+            SetConfig(new HostConfig { DefaultContentType = MimeTypes.Json });
+            this.CustomErrorHttpHandlers.Remove(HttpStatusCode.Forbidden);
 
             //Register all Authentication methods you want to enable for this web app.            
             Plugins.Add(new AuthFeature(
@@ -75,6 +78,9 @@ namespace Chat
 
         public void Any(PostRawToChannel request)
         {
+            if (!IsAuthenticated)
+                throw new HttpError(HttpStatusCode.Forbidden, "You must be authenticated to use remote control.");
+
             // Ensure the subscription sending this notification is still active
             var sub = ServerEvents.GetSubscription(request.From);
             if (sub == null)
