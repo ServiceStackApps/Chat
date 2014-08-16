@@ -89,9 +89,6 @@
 
     $.ss.eventReceivers = { "document": document };
     $(source).handleServerEvents({
-        success: function (selector, msg, json) {
-            console.log(selector, json);
-        },
         handlers: {
             onConnect: function (u) {
                 activeSub = u;
@@ -157,15 +154,10 @@
             $.ss.eventReceivers[name] = window[name];
         },
         toggleExamples: function () {
-            if (this.innerHTML == "hide") {
-                $(this).parent().css({ height: '25px' });
-                this.innerHTML = "show";
-            } else {
-                $(this).parent().css({ height: 'auto' });
-                this.innerHTML = "hide";
-            }
+            var willHide = this.innerHTML == "hide";
+            $(this).parent().css({ height: willHide ? '25px' : 'auto' }).html(willHide ? "show" : "hide");
         }
-    }).on('customEvent', function(e, msg, msgEvent) {
+    }).on('customEvent', function (e, msg, msgEvent) {
         addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event" });
     });
 
