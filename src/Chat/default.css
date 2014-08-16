@@ -4,14 +4,18 @@
     padding: 0;
     margin: 0;
     color: #444;
+    background: url(https://servicestack.net/img/slide/image01.jpg) no-repeat left center fixed;
+    background-size: cover;
+    -webkit-background-size: cover;
 }
 #top {
     z-index: 1;
     position: fixed;
     top: 0;
-    background: #03a9f4;
     width: 100%;
     height: 40px;
+    background: #212121;
+    opacity: .80;
 }
 ul {
     padding: 0;
@@ -57,9 +61,10 @@ li {
     width: 18%;
     min-width: 200px;
     height: 100%;
-    border: 2px solid #ccc;
     color: #666;
     background: #fff;
+    opacity: .85;
+    border-left: 1px solid #212121;
 }
 #examples {
     position: fixed;
@@ -69,12 +74,21 @@ li {
     min-width: 190px;
     border: 1px solid #ccc;
     font-size: 12px;
-    background: #fcfcfc;
+    background: #fefefe;
+    overflow: hidden;
 }
 #examples h4 {
     margin: 0;
     padding: 5px 10px;
     background: #f1f1f1;
+}
+#examples a {
+    color: #428bca;
+    text-decoration: none;
+    font-size: 13px;
+}
+#examples a:hover {
+    color: #2a6496;
 }
 #examples div {
     white-space: nowrap;
@@ -87,6 +101,10 @@ li {
     background: #ffe;
     color: #222;
 }
+#examples span {
+    color: #999;
+    cursor: pointer;
+}
 #log {
     position: fixed;
     left: -2px;
@@ -96,10 +114,10 @@ li {
 #bottom {
     position: fixed;
     bottom: 0;
-    height: 50px;
+    height: 49px;
     width: 82%;
-    background: #eaeaea;
-    border-top: 1px solid #ccc;
+    background: #212121;
+    opacity: .80;
 }
 #bottom input {
     font-size: 16px;
@@ -180,4 +198,8 @@ li {
 }
 .msg.highlight {
     background: #ffc;
+}
+#log {
+    background: #fff;    
+    opacity: .85;
 }
