@@ -155,7 +155,7 @@
         },
         toggleExamples: function () {
             var willHide = this.innerHTML == "hide";
-            $(this).parent().css({ height: willHide ? '25px' : 'auto' }).html(willHide ? "show" : "hide");
+            $(this).html(willHide ? "show" : "hide").parent().css({ height: willHide ? '25px' : 'auto' });
         }
     }).on('customEvent', function (e, msg, msgEvent) {
         addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event" });
