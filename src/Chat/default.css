@@ -72,9 +72,8 @@ li {
     right: .5%;
     width: 17%;
     min-width: 190px;
-    border: 1px solid #ccc;
     font-size: 12px;
-    background: #fefefe;
+    background: #fcfcfc;
     overflow: hidden;
 }
 #examples h4 {
