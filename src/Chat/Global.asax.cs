@@ -86,7 +86,9 @@ namespace Chat
                 return new List<ChatMessage>();
 
             var ret = msgs.Where(x => x.Id > afterId.GetValueOrDefault())
-                          .Take(take.GetValueOrDefault(DefaultLimit));
+                          .Reverse()  //get latest logs
+                          .Take(take.GetValueOrDefault(DefaultLimit))
+                          .Reverse(); //reverse back
  
             return ret.ToList();
         }
