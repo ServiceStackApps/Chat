@@ -94,6 +94,9 @@
                 activeSub = u;
                 $("#welcome").html('<span>Welcome, ' + u.displayName + '</span>' + '<img src="' + u.profileUrl + '"/>');
                 addEntry({ msg: "CONNECTED!", cls: "open" });
+                $.getJSON("/channels/@channel/history", function (r) {
+                    $.map(r.results, $.ss.handlers["chat"]);
+                });
             },
             onJoin: function (u) {
                 $("#users .u_" + u.userId).remove();

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Funq;
@@ -36,6 +38,57 @@ namespace Chat
                     new FacebookAuthProvider(appSettings),  //Sign-in with Facebook
                     new GithubAuthProvider(appSettings),    //Sign-in with GitHub OAuth Provider
                 }));
+
+            container.RegisterAutoWiredAs<MemoryChatHistory, IChatHistory>();
+        }
+    }
+
+    public interface IChatHistory
+    {
+        long GetNextMessageId(string channel);
+
+        void Log(string channel, ChatMessage msg);
+
+        List<ChatMessage> GetRecentChatHistory(string channel, long? afterId, int? take);
+    }
+
+    public class MemoryChatHistory : IChatHistory
+    {
+        public int DefaultLimit { get; set; }
+
+        public MemoryChatHistory()
+        {
+            DefaultLimit = 100;
+        }
+
+        private long messageId; 
+
+        Dictionary<string, List<ChatMessage>> MessagesMap = new Dictionary<string, List<ChatMessage>>();
+
+        public long GetNextMessageId(string channel)
+        {
+            return Interlocked.Increment(ref messageId);
+        }
+
+        public void Log(string channel, ChatMessage msg)
+        {
+            List<ChatMessage> msgs;
+            if (!MessagesMap.TryGetValue(channel, out msgs))
+                MessagesMap[channel] = msgs = new List<ChatMessage>();
+
+            msgs.Add(msg);
+        }
+
+        public List<ChatMessage> GetRecentChatHistory(string channel, long? afterId, int? take)
+        {
+            List<ChatMessage> msgs;
+            if (!MessagesMap.TryGetValue(channel, out msgs))
+                return new List<ChatMessage>();
+
+            var ret = msgs.Where(x => x.Id > afterId.GetValueOrDefault())
+                          .Take(take.GetValueOrDefault(DefaultLimit));
+ 
+            return ret.ToList();
         }
     }
 
@@ -70,11 +123,25 @@ namespace Chat
         public string Selector { get; set; }
     }
 
+    [Route("/channels/{Channel}/history")]
+    public class GetChatHistory : IReturn<GetChatHistoryResponse>
+    {
+        public string Channel { get; set; }
+        public long? AfterId { get; set; }
+        public int? Take { get; set; }
+    }
+
+    public class GetChatHistoryResponse
+    {
+        public List<ChatMessage> Results { get; set; }
+        public ResponseStatus ResponseStatus { get; set; }
+    }
+
+
     public class ServerEventsServices : Service
     {
-        private static long msgId;
-
         public IServerEvents ServerEvents { get; set; }
+        public IChatHistory ChatHistory { get; set; }
 
         public void Any(PostRawToChannel request)
         {
@@ -106,10 +173,12 @@ namespace Chat
             if (sub == null)
                 throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
 
+            var channel = request.Channel;
+
             // Create a DTO ChatMessage to hold all required info about this message
             var msg = new ChatMessage
             {
-                Id = Interlocked.Increment(ref msgId),
+                Id = ChatHistory.GetNextMessageId(channel),
                 FromUserId = sub.UserId,
                 FromName = sub.DisplayName,
                 Message = request.Message,
@@ -139,7 +208,17 @@ namespace Chat
                 ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
             }
 
+            ChatHistory.Log(channel, msg);
+
             return msg;
+        }
+
+        public object Any(GetChatHistory request)
+        {
+            return new GetChatHistoryResponse
+            {
+                Results = ChatHistory.GetRecentChatHistory(request.Channel, request.AfterId, request.Take)
+            };
         }
     }
 
