@@ -168,14 +168,15 @@
         console.log("addEntry", o);
         var id = "u_" + o.userId + "";
         var skipUser = $("#log .msg:last-child b").hasClass(id);
-        var user = o.userId && !skipUser ? "<b class='user " + id + "'>" + $("#users ." + id).html() + "</b>" : "<b class=" + id + ">&nbsp;</b>";
+        var inactive = $(createUser($.extend(o, { displayName: o.userName }))).html();
+        var user = o.userId && !skipUser ? "<b class='user " + id + "'>" + ($("#users ." + id).html() || inactive) + "</b>" : "<b class=" + id + ">&nbsp;</b>";
         var time = "<i>" + $.ss.tfmt12(new Date()) + "</i>";
         var highlight = o.msg.indexOf(activeSub.displayName.replace(" ", "")) >= 0 ? "highlight " : "";
         $("#log").append("<div id='m_" + (o.id || "0") + "' class='msg " + highlight + o.cls + "'>" +
             user + time + "<div>" + o.msg + "</div>" + "</div>");
     }
     function createUser(user) {
-        return "<div class='user u_" + user.userId + "'><img src='" + user.profileUrl + "'/><span data-id='" +
+        return "<div class='user u_" + user.userId + "'><img src='" + (user.profileUrl || "/img/no-profile64.png") + "'/><span data-id='" +
             user.userId + "' data-click='privateMsg'>" + user.displayName + "</span></div>";
     }
 
