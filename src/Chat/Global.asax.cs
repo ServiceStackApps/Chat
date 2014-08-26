@@ -210,7 +210,8 @@ namespace Chat
                 ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
             }
 
-            ChatHistory.Log(channel, msg);
+            if (!msg.Private)
+                ChatHistory.Log(channel, msg);
 
             return msg;
         }
