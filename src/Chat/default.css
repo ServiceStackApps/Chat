@@ -8,6 +8,27 @@
     background-size: cover;
     -webkit-background-size: cover;
 }
+::-webkit-scrollbar {
+	width: 6px;
+}
+::-webkit-scrollbar-button {
+	width: 6px;
+	height: 0px;
+}
+::-webkit-scrollbar-track {
+	background: #e6e6e6;
+	border: thin solid lightgray;
+    border-top: none;
+	box-shadow: 0px 0px 3px #dfdfdf inset;
+}
+::-webkit-scrollbar-thumb {
+	background: #666;
+	border: thin solid gray;
+    border-top: none;
+}
+::-webkit-scrollbar-thumb:hover {
+	background:#7d7d7d;
+}
 #top {
     z-index: 1;
     position: fixed;
@@ -109,6 +130,8 @@ li {
     left: -2px;
     bottom: 50px;
     width: 82%;
+    max-height: 100%;
+    overflow-y: auto;
 }
 #bottom {
     position: fixed;
