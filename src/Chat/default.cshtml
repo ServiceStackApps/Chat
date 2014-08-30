@@ -174,7 +174,7 @@
         var time = "<i>" + $.ss.tfmt12(new Date()) + "</i>";
         var highlight = o.msg.indexOf(activeSub.displayName.replace(" ", "")) >= 0 ? "highlight " : "";
         $("#log").append("<div id='m_" + (o.id || "0") + "' class='msg " + highlight + o.cls + "'>" +
-            user + time + "<div>" + o.msg + "</div>" + "</div>");
+            user + time + "<div>" + o.msg + "</div>" + "</div>").scrollTop(1E10);
     }
     function createUser(user) {
         return "<div class='user u_" + user.userId + "'><img src='" + (user.profileUrl || "/img/no-profile64.png") + "'/><span data-id='" +
