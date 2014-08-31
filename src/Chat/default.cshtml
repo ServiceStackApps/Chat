@@ -101,8 +101,8 @@
             },
             onJoin: function (u) {
                 $("#users .u_" + u.userId).remove();
-                $("#users").prepend(createUser(u));
                 refCounter[u.userId] = (refCounter[u.userId] || 0) + 1;
+                setTimeout(function () { $("#users").prepend(createUser(u)); }); //timing bug in chrome
             },
             onLeave: function (u) {
                 if (activeSub != null && u.userId != activeSub.userId && (refCounter[u.userId] = refCounter[u.userId] - 1) <= 0)
