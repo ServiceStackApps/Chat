@@ -1,4 +1,4 @@
-@inherits ViewPage
+@inherits ServiceStack.Razor.ViewPage
 @{
     ViewBag.Title = "Server Sent Events Chat";
     var channel = Request.QueryString["channel"] ?? "home";
@@ -10,6 +10,11 @@
         <link href="/img/favicon.png" rel="icon">         <link href="/default.css" rel="stylesheet" />
         <script src="/jquery-2.1.1.min.js"></script>
         <script src="/js/ss-utils.js"></script>
+        <style>
+            body {
+                background-image: url(@AppSettings.Get("background","/img/bg.jpg")) 
+            }
+        </style>
     </head>
 <body>
     <div id="top">
@@ -45,7 +50,6 @@
         <div>/cmd.announce This is your captain speaking ...</div>
         <div>/cmd.toggle$#channels</div>
         <h4><a href="https://github.com/ServiceStackApps/Chat#modifying-css-via-jquery">CSS</a></h4>
-        <div>/css.background-image url(http://bit.ly/1AlJgoa)</div>
         <div>/css.background-image url(http://bit.ly/1oQqhtm)</div>        
         <div>/css.background-image url(http://bit.ly/1yIJOBH)</div>                
         <div>@@me /css.background #eceff1</div>
@@ -76,17 +80,19 @@
 
 <script>
     var source = new EventSource('/event-stream?channel=@channel&t=' + new Date().getTime()); //disable cache
-    source.addEventListener('error', function(e) { addEntry({ msg: "ERROR!", cls: "error" }); }, false);
+    source.addEventListener('error', function (e) {
+        console.log(e);
+        addEntry({ msg: "ERROR!", cls: "error" });
+    }, false);
 
-    var $txtMsg = $("#txtMsg").focus(), usersMap = {}, refCounter = {}, activeSub = null;
-    $.getJSON("/event-subscribers?channel=@channel", function(users) {
-        $.map(users, function(user) {
-            usersMap[user.userId] = user;
-            refCounter[user.userId] = (refCounter[user.userId] || 0) + 1;
+    var $txtMsg = $("#txtMsg").focus(), usersMap = {}, activeSub = null;
+    function refreshUsers() {
+        $.getJSON("/event-subscribers?channel=@channel", function (users) {
+            usersMap = {};
+            $.map(users, function (user) { usersMap[user.userId] = user; });
+            $("#users").html($.map(usersMap, function (user) { return createUser(user); }).join(''));
         });
-        var html = $.map(usersMap, function(user) { return createUser(user); }).join('');
-        $("#users").html(html);
-    });
+    }
 
     $.ss.eventReceivers = { "document": document };
     $(source).handleServerEvents({
@@ -94,20 +100,15 @@
             onConnect: function (u) {
                 activeSub = u;
                 $("#welcome").html('<span>Welcome, ' + u.displayName + '</span>' + '<img src="' + u.profileUrl + '"/>');
+                $("#log").html("");
                 addEntry({ msg: "CONNECTED!", cls: "open" });
                 $.getJSON("/channels/@channel/history", function (r) {
                     $.map(r.results, $.ss.handlers["chat"]);
                 });
+                refreshUsers();
             },
-            onJoin: function (u) {
-                $("#users .u_" + u.userId).remove();
-                refCounter[u.userId] = (refCounter[u.userId] || 0) + 1;
-                setTimeout(function () { $("#users").prepend(createUser(u)); }); //timing bug in chrome
-            },
-            onLeave: function (u) {
-                if (activeSub != null && u.userId != activeSub.userId && (refCounter[u.userId] = refCounter[u.userId] - 1) <= 0)
-                    $("#users .u_" + u.userId).remove();
-            },
+            onJoin: refreshUsers,
+            onLeave: refreshUsers,
             chat: function (m, e) {
                 addEntry({ id: m.id, userId: m.fromUserId, userName: m.fromName, msg: m.message, cls: m.private ? ' private' : '' });
             }
@@ -140,7 +141,7 @@
     $(document).bindHandlers({
         announce: function (msg) {
             $("#announce").html(msg).fadeIn('fast');
-            setTimeout(function() { $("#announce").fadeOut('slow'); }, 2000);
+            setTimeout(function () { $("#announce").fadeOut('slow'); }, 2000);
         },
         toggle: function () {
             $(this).toggle();
@@ -193,7 +194,7 @@
                 to = activeSub.userId;
             } else {
                 var matches = $.grep($("#users .user span"),
-                    function(x) { return x.innerHTML.replace(" ", "").toLowerCase() === toName.toLowerCase(); });
+                    function (x) { return x.innerHTML.replace(" ", "").toLowerCase() === toName.toLowerCase(); });
                 to = matches.length > 0 ? matches[0].getAttribute("data-id") : null;
             }
             msg = parts[1];
@@ -205,15 +206,15 @@
         };
         if (msg[0] == "/") {
             parts = $.ss.splitOnFirst(msg, " ");
-            $.post("/channels/@channel/raw", { from: activeSub.id, toUserId: to, message: parts[1], selector: parts[0].substring(1) }, function(){}).fail(onError);
+            $.post("/channels/@channel/raw", { from: activeSub.id, toUserId: to, message: parts[1], selector: parts[0].substring(1) }, function () { }).fail(onError);
         } else {
-            $.post("/channels/@channel/chat", { from: activeSub.id, toUserId: to, message: msg, selector: "cmd.chat" }, function(){}).fail(onError);
+            $.post("/channels/@channel/chat", { from: activeSub.id, toUserId: to, message: msg, selector: "cmd.chat" }, function () { }).fail(onError);
         }
         $txtMsg.val("");
     }
     $("#btnSend").click(postMsg);
 
-    $txtMsg.keydown(function(e) {
+    $txtMsg.keydown(function (e) {
         var keycode = (e.keyCode ? e.keyCode : e.which);
         if ($.ss.getSelection()) {
             if (keycode == '9' || keycode == '13' || keycode == '32' || keycode == '39') {
@@ -239,7 +240,7 @@
         if (!$.ss.getSelection() && this.value[0] == '@@' && this.value.indexOf(' ') < 0) {
             var partialVal = this.value.substring(1);
             var matchingNames = $.grep($("#users .user span")
-                .map(function() { return this.innerHTML.replace(" ", ""); }), function(x) {
+                .map(function () { return this.innerHTML.replace(" ", ""); }), function (x) {
                     return x.substring(0, partialVal.length).toLowerCase() === partialVal.toLowerCase()
                         && x.toLowerCase() != activeSub.displayName.toLowerCase();
                 });

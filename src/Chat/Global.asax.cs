@@ -3,28 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using Funq;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Razor;
+using ServiceStack.Redis;
 using ServiceStack.Text;
 
 namespace Chat
 {
     public class AppHost : AppHostBase
     {
-        public AppHost() : base("Chat", typeof(ServerEventsServices).Assembly) {}
+        public AppHost() : base("Chat", typeof (ServerEventsServices).Assembly)
+        {
+            var liveSettings = "~/appsettings.txt".MapHostAbsolutePath();
+            AppSettings = File.Exists(liveSettings)
+                ? (IAppSettings)new TextFileSettings(liveSettings)
+                : new AppSettings();
+        }
 
         public override void Configure(Container container)
         {
             JsConfig.EmitCamelCaseNames = true;
-            var liveSettings = "~/appsettings.txt".MapHostAbsolutePath();
-            var appSettings = File.Exists(liveSettings)
-                ? (IAppSettings)new TextFileSettings(liveSettings)
-                : new AppSettings();
-
+ 
             Plugins.Add(new RazorFormat());
             Plugins.Add(new ServerEventsFeature());
             SetConfig(new HostConfig { DefaultContentType = MimeTypes.Json });
@@ -34,13 +36,22 @@ namespace Chat
             Plugins.Add(new AuthFeature(
                 () => new AuthUserSession(),
                 new IAuthProvider[] {
-                    new TwitterAuthProvider(appSettings),   //Sign-in with Twitter
-                    new FacebookAuthProvider(appSettings),  //Sign-in with Facebook
-                    new GithubAuthProvider(appSettings),    //Sign-in with GitHub OAuth Provider
+                    new TwitterAuthProvider(AppSettings),   //Sign-in with Twitter
+                    new FacebookAuthProvider(AppSettings),  //Sign-in with Facebook
+                    new GithubAuthProvider(AppSettings),    //Sign-in with GitHub OAuth Provider
                 }));
 
-            container.Register(appSettings);
             container.RegisterAutoWiredAs<MemoryChatHistory, IChatHistory>();
+
+            var redisHost = AppSettings.GetString("RedisHost");
+            if (redisHost != null)
+            {
+                container.Register<IRedisClientsManager>(new PooledRedisClientManager(redisHost));
+
+                container.Register<IServerEvents>(c =>
+                    new RedisServerEvents(c.Resolve<IRedisClientsManager>()));
+                container.Resolve<IServerEvents>().Start();
+            }
         }
     }
 
@@ -57,18 +68,18 @@ namespace Chat
     {
         public int DefaultLimit { get; set; }
 
+        public IServerEvents ServerEvents { get; set; }
+
         public MemoryChatHistory()
         {
             DefaultLimit = 100;
         }
 
-        private long messageId; 
-
         Dictionary<string, List<ChatMessage>> MessagesMap = new Dictionary<string, List<ChatMessage>>();
 
         public long GetNextMessageId(string channel)
         {
-            return Interlocked.Increment(ref messageId);
+            return ServerEvents.GetNextSequence("chatMsg");
         }
 
         public void Log(string channel, ChatMessage msg)
@@ -90,7 +101,7 @@ namespace Chat
                           .Reverse()  //get latest logs
                           .Take(take.GetValueOrDefault(DefaultLimit))
                           .Reverse(); //reverse back
- 
+
             return ret.ToList();
         }
     }
@@ -153,7 +164,7 @@ namespace Chat
                 throw new HttpError(HttpStatusCode.Forbidden, "You must be authenticated to use remote control.");
 
             // Ensure the subscription sending this notification is still active
-            var sub = ServerEvents.GetSubscription(request.From);
+            var sub = ServerEvents.GetSubscriptionInfo(request.From);
             if (sub == null)
                 throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
 
@@ -173,7 +184,7 @@ namespace Chat
         public object Any(PostChatToChannel request)
         {
             // Ensure the subscription sending this notification is still active
-            var sub = ServerEvents.GetSubscription(request.From);
+            var sub = ServerEvents.GetSubscriptionInfo(request.From);
             if (sub == null)
                 throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
 
@@ -198,7 +209,7 @@ namespace Chat
 
                 // Also provide UI feedback to the user sending the private message so they
                 // can see what was sent. Relay it to all senders active subscriptions 
-                var toSubs = ServerEvents.GetSubscriptionsByUserId(request.ToUserId);
+                var toSubs = ServerEvents.GetSubscriptionInfosByUserId(request.ToUserId);
                 foreach (var toSub in toSubs)
                 {
                     // Change the message format to contain who the private message was sent to
