@@ -108,14 +108,14 @@ The way your Services send notifications is via the `IServerEvents` API which cu
 > Based on feedback we'll also consider adding a distributed Redis implementation so events can be sent across load-balanced app servers.
 
 ```csharp
-public interface IServerEvents
+public interface IServerEvents : IDisposable
 {
     // External API's
     void NotifyAll(string selector, object message);
 
     void NotifyChannel(string channel, string selector, object message);
 
-    void NotifySubscription(string subId, string selector, object message, string channel=null);
+    void NotifySubscription(string subscriptionId, string selector, object message, string channel = null);
 
     void NotifyUserId(string userId, string selector, object message, string channel = null);
 
@@ -123,19 +123,26 @@ public interface IServerEvents
 
     void NotifySession(string sspid, string selector, object message, string channel = null);
 
-    IEventSubscription GetSubscription(string id);
+    SubscriptionInfo GetSubscriptionInfo(string id);
 
-    List<IEventSubscription> GetSubscriptionsByUserId(string userId);
+    List<SubscriptionInfo> GetSubscriptionInfosByUserId(string userId);
 
     // Admin API's
-    void Register(IEventSubscription subscription);
+    void Register(IEventSubscription subscription, Dictionary<string, string> connectArgs = null);
 
-    void UnRegister(IEventSubscription subscription);
+    void UnRegister(string subscriptionId);
+
+    long GetNextSequence(string sequenceId);
 
     // Client API's
-    List<Dictionary<string, string>> GetSubscriptions(string channel = null);
+    List<Dictionary<string, string>> GetSubscriptionsDetails(string channel = null);
 
-    void Pulse(string id);
+    bool Pulse(string subscriptionId);
+
+    // Clear all Registrations
+    void Reset();
+    void Start();
+    void Stop();
 }
 ```
 
@@ -546,14 +553,17 @@ public class PostRawToChannel : IReturnVoid
 
 public class ServerEventsServices : Service
 {
-    private static long msgId;
-
     public IServerEvents ServerEvents { get; set; }
+    public IChatHistory ChatHistory { get; set; }
+    public IAppSettings AppSettings { get; set; }
 
     public void Any(PostRawToChannel request)
     {
+        if (!IsAuthenticated && AppSettings.Get("LimitRemoteControlToAuthenticatedUsers", false))
+            throw new HttpError(HttpStatusCode.Forbidden, "You must be authenticated to use remote control.");
+
         // Ensure the subscription sending this notification is still active
-        var sub = ServerEvents.GetSubscription(request.From);
+        var sub = ServerEvents.GetSubscriptionInfo(request.From);
         if (sub == null)
             throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
 
@@ -573,14 +583,16 @@ public class ServerEventsServices : Service
     public object Any(PostChatToChannel request)
     {
         // Ensure the subscription sending this notification is still active
-        var sub = ServerEvents.GetSubscription(request.From);
+        var sub = ServerEvents.GetSubscriptionInfo(request.From);
         if (sub == null)
             throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
+
+        var channel = request.Channel;
 
         // Create a DTO ChatMessage to hold all required info about this message
         var msg = new ChatMessage
         {
-            Id = Interlocked.Increment(ref msgId),
+            Id = ChatHistory.GetNextMessageId(channel),
             FromUserId = sub.UserId,
             FromName = sub.DisplayName,
             Message = request.Message,
@@ -596,7 +608,7 @@ public class ServerEventsServices : Service
 
             // Also provide UI feedback to the user sending the private message so they
             // can see what was sent. Relay it to all senders active subscriptions 
-            var toSubs = ServerEvents.GetSubscriptionsByUserId(request.ToUserId);
+            var toSubs = ServerEvents.GetSubscriptionInfosByUserId(request.ToUserId);
             foreach (var toSub in toSubs)
             {
                 // Change the message format to contain who the private message was sent to
@@ -609,6 +621,9 @@ public class ServerEventsServices : Service
             // Notify everyone in the channel for public messages
             ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
         }
+
+        if (!msg.Private)
+            ChatHistory.Log(channel, msg);
 
         return msg;
     }
