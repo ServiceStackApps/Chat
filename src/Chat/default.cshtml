@@ -95,7 +95,13 @@
         $.getJSON("/event-subscribers?channels=@channels", function (users) {
             usersMap = {};
             $.map(users, function (user) { usersMap[user.userId] = user; });
-            $("#users").html($.map(usersMap, function (user) { return createUser(user); }).join(''));
+            $("#users").html($.map(channels, function (c) {
+                var usersInChannel = $.grep($.map(usersMap,function(u){return u;}), function (u) { return u.channels.split(',').indexOf(c) >= 0; });
+                return '<div class="channel" data-channel="' + c + '">'
+                    + $.map(usersInChannel, function (u) { return createUser(u); }).join('')
+                    + '</div>';
+            }).join(''));
+            $.ss.handlers["changeChannel"](selectedChannel());
         });
     }
 

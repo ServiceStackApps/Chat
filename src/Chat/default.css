@@ -149,6 +149,13 @@ li:hover {
 #logs .channel.selected {
     display: block;
 }
+#users .channel {
+    display: none;
+}
+#users .channel.selected {
+    display: block;
+}
+
 #bottom {
     position: fixed;
     bottom: 0;
