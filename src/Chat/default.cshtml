@@ -32,7 +32,7 @@
         </div>
         <ul id="channels" style="margin: 0 0 0 30px">
             <li style="background: none; padding: 0 0 0 5px;">
-                <button onclick="var chan = prompt('Open another Channel in new Window:','ChannelName'); if (chan) window.open('?channels='+chan.replace(/\s+/g,''));">+</button>
+                <button onclick="var chan = prompt('Join another Channel:','ChannelName'); if (chan) location.href = '?channels=@channels,'+chan.replace(/\s+/g,'');">+</button>
             </li>
             <li style="background: none;padding: 0;">
                 <span style="font-size: 13px; color: #ccc" onclick="$('#logs [data-channel]').html('')">clear</span>
@@ -181,7 +181,7 @@
     }).on('customEvent', function (e, msg, msgEvent) {
         addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event", channel: msgEvent.channel });
     });
-    $.ss.handlers["changeChannel"](channels[0]);
+    $.ss.handlers["changeChannel"](channels[channels.length-1]);
 
     function addEntry(o) {
         console.log("addEntry", o);
