@@ -109,6 +109,7 @@
     $(source).handleServerEvents({
         handlers: {
             onConnect: function (u) {
+                console.log(u);
                 activeSub = u;
                 $("#welcome").html('<span>Welcome, ' + u.displayName + '</span>' + '<img src="' + u.profileUrl + '"/>');
                 $("#logs .channel").html("");
