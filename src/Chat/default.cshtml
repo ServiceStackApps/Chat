@@ -126,7 +126,7 @@
             chat: function (m, e) {
                 addEntry({ id: m.id, userId: m.fromUserId, userName: m.fromName, msg: m.message, cls: m.private ? ' private' : '', channel: m.channel || e.channel });
             },
-            stopEventSource: function() { source.close(); }
+            stopEventSource: function() { $.ss.eventSource.close(); }
         },
         receivers: {
             tv: {
