@@ -68,7 +68,8 @@
         <div>/cmd.removeReceiver window</div>
         <h4><a href="https://github.com/ServiceStackApps/Chat#jquery-events">Triggers</a></h4>
         <div>/trigger.customEvent arg</div>
-        <div>/cmd.stopEventSource</div>
+        <div>/cmd.stopListening</div>
+        <div data-click="startListening">startListening</div>
     </div>
 </div>
 
@@ -126,7 +127,7 @@
             chat: function (m, e) {
                 addEntry({ id: m.id, userId: m.fromUserId, userName: m.fromName, msg: m.message, cls: m.private ? ' private' : '', channel: m.channel || e.channel });
             },
-            stopEventSource: function() { $.ss.eventSource.close(); }
+            stopListening: function () { $.ss.eventSource.close(); }
         },
         receivers: {
             tv: {
@@ -181,7 +182,8 @@
             $("[data-channel]").removeClass('selected');
             $("[data-channel=" + channel + "]").addClass('selected');
             $("#txtMsg").focus();
-        }
+        },
+        startListening: function() { $.ss.reconnectServerEvents(); }
     }).on('customEvent', function (e, msg, msgEvent) {
         addEntry({ msg: "[event " + e.type + " message: " + msg + "]", cls: "event", channel: msgEvent.channel });
     });
