@@ -68,6 +68,7 @@
         <div>/cmd.removeReceiver window</div>
         <h4><a href="https://github.com/ServiceStackApps/Chat#jquery-events">Triggers</a></h4>
         <div>/trigger.customEvent arg</div>
+        <div>/cmd.stopEventSource</div>
     </div>
 </div>
 
@@ -119,11 +120,13 @@
                 });
                 refreshUsers();
             },
+            onHeartbeat: function (msg, e) { if (console) console.log("onHeartbeat", msg, e); },
             onJoin: refreshUsers,
             onLeave: refreshUsers,
             chat: function (m, e) {
                 addEntry({ id: m.id, userId: m.fromUserId, userName: m.fromName, msg: m.message, cls: m.private ? ' private' : '', channel: m.channel || e.channel });
-            }
+            },
+            stopEventSource: function() { source.close(); }
         },
         receivers: {
             tv: {
