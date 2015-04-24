@@ -57,6 +57,9 @@ li {
     margin: 0 5px 0 0;
     opacity: .5;
 }
+a img {
+    border: none;
+}
 #channels li.selected {
     opacity: .9;
 }

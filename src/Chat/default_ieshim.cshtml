@@ -253,6 +253,7 @@
         }
         if (keycode == '13') { //enter
             postMsg();
+            return false;
         } else if (keycode == '38') { //up arrow
             historyIndex = Math.min(++historyIndex, msgHistory.length);
             $txtMsg.val(msgHistory[msgHistory.length - 1 - historyIndex]);
