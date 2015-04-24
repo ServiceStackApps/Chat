@@ -52,6 +52,9 @@ namespace Chat
                     new RedisServerEvents(c.Resolve<IRedisClientsManager>()));
                 container.Resolve<IServerEvents>().Start();
             }
+
+            // for lte IE 9 support
+            Plugins.Add(new CorsFeature());
         }
     }
 

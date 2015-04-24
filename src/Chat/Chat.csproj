@@ -84,6 +84,10 @@
   <ItemGroup>
     <Content Include="default.css" />
     <Content Include="Global.asax" />
+    <Content Include="ie\es5-shim.min.js" />
+    <Content Include="ie\eventsource.min.js" />
+    <Content Include="ie\console.min.js" />
+    <Content Include="ie\jquery-1.11.2.min.js" />
     <Content Include="img\bg.jpg" />
     <Content Include="img\facebook_normal.png" />
     <Content Include="img\favicon.png" />
@@ -105,6 +109,7 @@
     <Content Include="default.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="default_ieshim.cshtml" />
     <None Include="Properties\PublishProfiles\WebDeploy.pubxml" />
   </ItemGroup>
   <PropertyGroup>
