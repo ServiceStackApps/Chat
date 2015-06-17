@@ -37,7 +37,7 @@ All this fits in a tiny footprint using just vanilla jQuery weighing just:
   - [1 default_ieshim.cshtml page](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/default_ieshim.cshtml), showcasing IE8+ support
   - [2 ServiceStack Services](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/Global.asax.cs)
 
-On the back-end Chat utilizes a variety of different Web Framework features spanning Dyanmic Razor Views, Web Services, JSON Serialization, Server Push Events as well as Twitter, Facebook and GitHub OAuth integration, all in a single page ASP.NET ServiceStack WebApp running on **9 .NET dll** dependencies.
+On the back-end Chat utilizes a variety of different Web Framework features spanning Dynamic Razor Views, Web Services, JSON Serialization, Server Push Events as well as Twitter, Facebook and GitHub OAuth integration, all in a single page ASP.NET ServiceStack WebApp running on **9 .NET dll** dependencies.
 
 ## Remote control
 
