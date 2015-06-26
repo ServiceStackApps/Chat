@@ -89,7 +89,7 @@
     $("#logs").append($.map(channels, function (c) { return '<div class="channel" data-channel="' + c + '"></div>'; }));
     var selectedChannel = function () { return $("#channels .selected").html(); };
 
-    var source = new EventSource('/event-stream?channels=@channels&t=' + new Date().getTime()); //disable cache
+    var source = new EventSource('/event-stream?channels=@channels&ss-id=@(base.GetSession().Id)&t=' + new Date().getTime()); //disable cache
     source.addEventListener('error', function (e) {
         console.log(e);
         addEntry({ msg: "ERROR!", cls: "error" });

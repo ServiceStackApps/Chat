@@ -29,7 +29,10 @@ namespace Chat
  
             Plugins.Add(new RazorFormat());
             Plugins.Add(new ServerEventsFeature());
-            SetConfig(new HostConfig { DefaultContentType = MimeTypes.Json });
+            SetConfig(new HostConfig {
+                DefaultContentType = MimeTypes.Json,
+                AllowSessionIdsInHttpParams = true,
+            });
             this.CustomErrorHttpHandlers.Remove(HttpStatusCode.Forbidden);
 
             //Register all Authentication methods you want to enable for this web app.            
