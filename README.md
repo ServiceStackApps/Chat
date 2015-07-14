@@ -34,8 +34,9 @@ Chat showcases ServiceStack's new support for [Server Sent Events](http://www.ht
 All this fits in a tiny footprint using just vanilla jQuery weighing just:
 
   - [1 default.cshtml page](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/default.cshtml), with just **60 lines of HTML markup** and **165 lines of JavaScript**
-  - [1 default_ieshim.cshtml page](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/default_ieshim.cshtml), showcasing IE8+ support
   - [2 ServiceStack Services](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/Global.asax.cs)
+
+> If you need to support IE8+ browsers see the modified [default_ieshim.cshtml](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/default_ieshim.cshtml) configured with IE SSE Polyfills.
 
 On the back-end Chat utilizes a variety of different Web Framework features spanning Dynamic Razor Views, Web Services, JSON Serialization, Server Push Events as well as Twitter, Facebook and GitHub OAuth integration, all in a single page ASP.NET ServiceStack WebApp running on **9 .NET dll** dependencies.
 
