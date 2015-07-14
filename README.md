@@ -60,7 +60,17 @@ Clients can apply any of the above methods to all users, a specified user or jus
   - **Efficient** - Each client uses a single TCP connection and each message avoids the overhead of HTTP Connections and Headers that's [often faster than Web Sockets](http://matthiasnehlsen.com/blog/2013/05/01/server-sent-events-vs-websockets/).
   - **Resilient** - Browsers automatically detect when a connection is broken and automatically reconnects
   - **Interoperable** - As it's just plain-old HTTP, it's introspectable with your favorite HTTP Tools and even works through HTTP proxies (with buffering and checked-encoding turned off).
-  - **Well Supported** - As a Web Standard it's supported in all major browsers except for IE which [can be enabled with polyfills](http://html5doctor.com/server-sent-events/#yaffle).
+  - **Well Supported** - As a Web Standard it's supported in all major browsers except for IE which [can be enabled with polyfills](http://html5doctor.com/server-sent-events/#yaffle) - see [default_ieshim.cshtml](https://github.com/ServiceStackApps/Chat/blob/master/src/Chat/default_ieshim.cshtml) and its [Live Chat Example](chat.servicestack.net/default_ieshim).
+
+### Server Event Clients
+
+  - [JavaScript Client](https://github.com/ServiceStack/ServiceStack/wiki/JavaScript-Server-Events-Client)
+  - [C# Client](https://github.com/ServiceStack/ServiceStack/wiki/C%23-Server-Events-Client)
+
+### Server Event Providers
+
+  - Memory Server Events (default)
+  - [Redis Server Events](https://github.com/ServiceStack/ServiceStack/wiki/Redis-Server-Events)
 
 ### Registering
 
@@ -106,7 +116,7 @@ class ServerEventsFeature
 
 The way your Services send notifications is via the `IServerEvents` API which currently only has an in-memory `MemoryServerEvents` implementation which keeps a record of all subscriptions and connections in memory:
 
-> Based on feedback we'll also consider adding a distributed Redis implementation so events can be sent across load-balanced app servers.
+> Server Events can also be configured to use a [distributed Redis backend](https://github.com/ServiceStack/ServiceStack/wiki/Redis-Server-Events) which allows Server Events to work across load-balanced app servers.
 
 ```csharp
 public interface IServerEvents : IDisposable
