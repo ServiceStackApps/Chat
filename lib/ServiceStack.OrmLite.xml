@@ -299,7 +299,7 @@
             <para>db.Select&lt;Person&gt;(x =&gt; x.Age &gt; 40)</para>
             </summary>
         </member>
-        <member name="M:ServiceStack.OrmLite.OrmLiteReadExpressionsApi.Single``1(System.Data.IDbConnection,ServiceStack.OrmLite.ISqlExpression,System.Object)">
+        <member name="M:ServiceStack.OrmLite.OrmLiteReadExpressionsApi.Single``1(System.Data.IDbConnection,ServiceStack.OrmLite.ISqlExpression)">
             <summary>
             Returns results from using an SqlExpression lambda. E.g:
             <para>db.Single(db.From&lt;Person&gt;().Where(x =&gt; x.Age &gt; 40))</para>
@@ -661,6 +661,12 @@
             <summary>
             Returns a lazyily loaded stream of results using a parameterized query. E.g:
             <para>db.SelectLazy&lt;Person&gt;("Age &gt; @age", new { age = 40 })</para>
+            </summary>
+        </member>
+        <member name="M:ServiceStack.OrmLite.OrmLiteReadApi.SelectLazy``1(System.Data.IDbConnection,ServiceStack.OrmLite.SqlExpression{``0})">
+            <summary>
+            Returns a lazyily loaded stream of results using a parameterized query. E.g:
+            <para>db.SelectLazy(db.From&lt;Person&gt;().Where(x =&gt; x == 40))</para>
             </summary>
         </member>
         <member name="M:ServiceStack.OrmLite.OrmLiteReadApi.SelectLazyFmt``1(System.Data.IDbConnection,System.String,System.Object[])">
