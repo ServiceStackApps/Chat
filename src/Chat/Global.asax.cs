@@ -260,6 +260,39 @@ namespace Chat
         }
     }
 
+    [Authenticate]
+    [Route("/account")]
+    public class GetUserDetails {}
+
+    public class GetUserDetailsResponse
+    {
+        public string Provider { get; set; }
+        public string UserId { get; set; }
+        public string UserName { get; set; }
+        public string FullName { get; set; }
+        public string DisplayName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Company { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+
+        public DateTime? BirthDate { get; set; }
+        public string BirthDateRaw { get; set; }
+        public string Address { get; set; }
+        public string Address2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Country { get; set; }
+        public string Culture { get; set; }
+        public string Gender { get; set; }
+        public string Language { get; set; }
+        public string MailAddress { get; set; }
+        public string Nickname { get; set; }
+        public string PostalCode { get; set; }
+        public string TimeZone { get; set; }
+    }
+
     public class UserDetailsService : Service
     {
         public object Get(GetUserDetails request)
@@ -267,41 +300,5 @@ namespace Chat
             var session = GetSession();
             return session.ConvertTo<GetUserDetailsResponse>();
         }
-    }
-
-    [Authenticate]
-    [Route("/account")]
-    public class GetUserDetails
-    {
-
-    }
-
-    public class GetUserDetailsResponse
-    {
-        public virtual string Provider { get; set; }
-        public virtual string UserId { get; set; }
-        public virtual string UserName { get; set; }
-        public virtual string FullName { get; set; }
-        public virtual string DisplayName { get; set; }
-        public virtual string FirstName { get; set; }
-        public virtual string LastName { get; set; }
-        public virtual string Company { get; set; }
-        public virtual string Email { get; set; }
-        public virtual string PhoneNumber { get; set; }
-
-        public virtual DateTime? BirthDate { get; set; }
-        public virtual string BirthDateRaw { get; set; }
-        public virtual string Address { get; set; }
-        public virtual string Address2 { get; set; }
-        public virtual string City { get; set; }
-        public virtual string State { get; set; }
-        public virtual string Country { get; set; }
-        public virtual string Culture { get; set; }
-        public virtual string Gender { get; set; }
-        public virtual string Language { get; set; }
-        public virtual string MailAddress { get; set; }
-        public virtual string Nickname { get; set; }
-        public virtual string PostalCode { get; set; }
-        public virtual string TimeZone { get; set; }
     }
 }
