@@ -260,7 +260,6 @@ namespace Chat
         }
     }
 
-    [Authenticate]
     [Route("/account")]
     public class GetUserDetails {}
 
@@ -293,6 +292,7 @@ namespace Chat
         public string TimeZone { get; set; }
     }
 
+    [Authenticate]
     public class UserDetailsService : Service
     {
         public object Get(GetUserDetails request)
