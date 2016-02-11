@@ -36,16 +36,6 @@
             </summary>
             <returns>An enumerable of loaded assemblies.</returns>
         </member>
-        <member name="M:ServiceStack.Razor.Compilation.DirectivesParser.TryFindGlobalDirectivesFile(System.String,System.String,System.String@)">
-            <summary>
-            Attempts to locate the nearest global directive file by 
-            </summary>
-        </member>
-        <member name="P:ServiceStack.Razor.Compilation.RazorPageHost.RootNamespace">
-            <summary>
-            Gets or sets the root namespace used when the full namespace is inferred from the VirtualPath.
-            </summary>
-        </member>
         <member name="F:ServiceStack.Razor.Managers.FileSystemWatcherLiveReload.FileSystemWatcher">
             <summary>
             The purpose of the FileSystemWatcher is to ensure razor pages are
@@ -56,6 +46,16 @@
         <member name="M:ServiceStack.Razor.Managers.FileSystemWatcherLiveReload.FileSystemWatcher_Error(System.Object,System.IO.ErrorEventArgs)">
             <summary>
             Avoid throwing unhandled exception when shutting down ASP.NET host
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Razor.Compilation.DirectivesParser.TryFindGlobalDirectivesFile(System.String,System.String,System.String@)">
+            <summary>
+            Attempts to locate the nearest global directive file by 
+            </summary>
+        </member>
+        <member name="P:ServiceStack.Razor.Compilation.RazorPageHost.RootNamespace">
+            <summary>
+            Gets or sets the root namespace used when the full namespace is inferred from the VirtualPath.
             </summary>
         </member>
         <member name="T:ServiceStack.Razor.Managers.RazorPageResolver">
