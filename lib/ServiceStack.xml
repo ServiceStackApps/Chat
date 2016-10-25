@@ -744,6 +744,24 @@
             Wrappers for improving consistency with .NET Core Conventions
             </summary>
         </member>
+        <member name="T:ServiceStack.DisposableTracker">
+            <summary>
+            Tracks created <see cref="T:System.IDisposable"></see> objects.
+            Used by <see cref="T:ServiceStack.RequestContext"></see> to track <see cref="T:Funq.Container"></see> created IDisposable instances.
+            These instances are tracked and disposed at the end of a request.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.DisposableTracker.Add(System.IDisposable)">
+            <summary>
+            Adds disposable to the tracker
+            </summary>
+        </member>
+        <member name="M:ServiceStack.DisposableTracker.Dispose">
+            <summary>
+            Dispose all disposables in the tracker.
+            If disposable is still alive alose <see cref="T:ServiceStack.HostContext"></see>.Release() is called to release the object.
+            </summary>
+        </member>
         <member name="M:ServiceStack.FluentValidation.Internal.CollectionPropertyRule`1.Create``1(System.Linq.Expressions.Expression{System.Func{``0,System.Collections.Generic.IEnumerable{`0}}},System.Func{ServiceStack.FluentValidation.CascadeMode})">
             <summary>
             Creates a new property rule from a lambda expression.
@@ -4407,6 +4425,48 @@
             return null if Session is invalid to create new Session.
             </summary>
         </member>
+        <member name="M:ServiceStack.ServiceStackHost.GetDbConnection(ServiceStack.Web.IRequest)">
+            <summary>
+            Gets IDbConnection Checks if DbInfo is seat in RequestContext.
+            See multitenancy: https://github.com/ServiceStack/ServiceStack/wiki/Multitenancy
+            Called by itself, <see cref="T:ServiceStack.Service"></see> and <see cref="!:ServiceStack.Razor.ViewPageBase"></see>
+            </summary>
+            <param name="req">Provided by services and pageView, can be helpfull when overriding this method</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServiceStack.ServiceStackHost.GetRedisClient(ServiceStack.Web.IRequest)">
+            <summary>
+            Resolves <see cref="T:ServiceStack.Redis.IRedisClient"></see> based on <see cref="T:ServiceStack.Redis.IRedisClientsManager"></see>.GetClient();
+            Called by itself, <see cref="T:ServiceStack.Service"></see> and <see cref="!:ServiceStack.Razor.ViewPageBase"></see>
+            </summary>
+            <param name="req">Provided by services and pageView, can be helpfull when overriding this method</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServiceStack.ServiceStackHost.GetCacheClient(ServiceStack.Web.IRequest)">
+            <summary>
+            Tries to resolve <see cref="T:ServiceStack.Redis.IRedisClient"></see> through Ioc container.
+            If not registered, it falls back to <see cref="T:ServiceStack.Redis.IRedisClientsManager"></see>.GetClient();
+            Called by itself, <see cref="T:ServiceStack.Service"></see> and <see cref="!:ServiceStack.Razor.ViewPageBase"></see>
+            </summary>
+            <param name="req">Provided by services and pageView, can be helpfull when overriding this method</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServiceStack.ServiceStackHost.GetMemoryCacheClient(ServiceStack.Web.IRequest)">
+            <summary>
+            Returns <see cref="T:ServiceStack.Caching.MemoryCacheClient"></see>. cache is only persisted for this running app instance.
+            Called by <see cref="T:ServiceStack.Service"></see>.MemoryCacheClient
+            </summary>
+            <param name="req">Provided by services and pageView, can be helpfull when overriding this method</param>
+            <returns>Nullable MemoryCacheClient</returns>
+        </member>
+        <member name="M:ServiceStack.ServiceStackHost.GetMessageProducer(ServiceStack.Web.IRequest)">
+            <summary>
+            Returns <see cref="T:ServiceStack.Messaging.IMessageProducer"></see> from the IOC container.
+            Called by itself, <see cref="T:ServiceStack.Service"></see> and <see cref="!:ServiceStack.Razor.ViewPageBase"></see>
+            </summary>
+            <param name="req">Provided by services and PageViewBase, can be helpfull when overriding this method</param>
+            <returns></returns>
+        </member>
         <member name="M:ServiceStack.ServiceStackProvider.SessionAs``1">
             <summary>
             Typed UserSession
@@ -4459,6 +4519,12 @@
         <member name="P:ServiceStack.PostmanFeature.DefaultVerbsForAny">
             <summary>
             Only generate specified Verb entries for "ANY" routes
+            </summary>
+        </member>
+        <member name="T:ServiceStack.RequestContext">
+            <summary>
+            Abstraction to provide a context per request.
+            in spnet.web its equivalent to <see cref="T:System.Web.HttpContext"></see>.Current.Items falls back to CallContext
             </summary>
         </member>
         <member name="F:ServiceStack.RequestContext.UseThreadStatic">
@@ -4934,6 +5000,11 @@
             Generic + Useful IService base class
             </summary>
         </member>
+        <member name="P:ServiceStack.Service.LocalCache">
+            <summary>
+            Returns <see cref="T:ServiceStack.Caching.MemoryCacheClient"></see>. cache is only persisted for this running app instance.
+            </summary>
+        </member>
         <member name="P:ServiceStack.Service.VirtualFileSources">
             <summary>
             Cascading collection of virtual file sources, inc. Embedded Resources, File System, In Memory, S3
@@ -4952,6 +5023,23 @@
         <member name="M:ServiceStack.Service.SessionAs``1">
             <summary>
             Typed UserSession
+            </summary>
+        </member>
+        <member name="P:ServiceStack.Service.IsAuthenticated">
+            <summary>
+            If user found in session for this request is authenticated.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Service.PublishMessage``1(``0)">
+            <summary>
+            Publish a MQ message over the <see cref="T:ServiceStack.Messaging.IMessageProducer"></see> implementation.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Service.Dispose">
+            <summary>
+            Disposes all created disposable properties of this service
+            and executes disposing of all request <see cref="!:IDposable"></see>s 
+            (warning, manualy triggering this might lead to unwanted disposing of all request related objects and services.)
             </summary>
         </member>
         <member name="F:ServiceStack.ServiceExtensions.DefaultCache">
