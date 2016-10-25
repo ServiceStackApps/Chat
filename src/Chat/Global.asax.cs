@@ -68,6 +68,8 @@ namespace Chat
         void Log(string channel, ChatMessage msg);
 
         List<ChatMessage> GetRecentChatHistory(string channel, long? afterId, int? take);
+
+        void Flush();
     }
 
     public class MemoryChatHistory : IChatHistory
@@ -109,6 +111,11 @@ namespace Chat
                           .Reverse(); //reverse back
 
             return ret.ToList();
+        }
+
+        public void Flush()
+        {
+            MessagesMap = new Dictionary<string, List<ChatMessage>>();
         }
     }
 
@@ -158,6 +165,8 @@ namespace Chat
         public ResponseStatus ResponseStatus { get; set; }
     }
 
+    [Route("/reset")]
+    public class ClearChatHistory : IReturnVoid { }
 
     public class ServerEventsServices : Service
     {
@@ -173,18 +182,19 @@ namespace Chat
             // Ensure the subscription sending this notification is still active
             var sub = ServerEvents.GetSubscriptionInfo(request.From);
             if (sub == null)
-                throw HttpError.NotFound("Subscription {0} does not exist".Fmt(request.From));
+                throw HttpError.NotFound($"Subscription {request.From} does not exist");
 
             // Check to see if this is a private message to a specific user
+            var msg = PclExportClient.Instance.HtmlEncode(request.Message);
             if (request.ToUserId != null)
             {
                 // Only notify that specific user
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, request.Message);
+                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
             }
             else
             {
                 // Notify everyone in the channel for public messages
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, request.Message);
+                ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
             }
         }
 
@@ -204,7 +214,7 @@ namespace Chat
                 Channel = request.Channel,
                 FromUserId = sub.UserId,
                 FromName = sub.DisplayName,
-                Message = request.Message,
+                Message = PclExportClient.Instance.HtmlEncode(request.Message),
             };
 
             // Check to see if this is a private message to a specific user
@@ -221,7 +231,7 @@ namespace Chat
                 foreach (var toSub in toSubs)
                 {
                     // Change the message format to contain who the private message was sent to
-                    msg.Message = "@{0}: {1}".Fmt(toSub.DisplayName, msg.Message);
+                    msg.Message = $"@{toSub.DisplayName}: {msg.Message}";
                     ServerEvents.NotifySubscription(request.From, request.Selector, msg);
                 }
             }
@@ -249,6 +259,12 @@ namespace Chat
             {
                 Results = msgs
             };
+        }
+
+        public object Any(ClearChatHistory request)
+        {
+            ChatHistory.Flush();
+            return HttpResult.Redirect("/");
         }
     }
 
