@@ -171,6 +171,27 @@ namespace Chat
     [Route("/reset-serverevents")]
     public class ResetServerEvents : IReturnVoid { }
 
+    [Route("/channels/{Channel}/object")]
+    public class PostObjectToChannel : IReturnVoid
+    {
+        public string ToUserId { get; set; }
+        public string Channel { get; set; }
+        public string Selector { get; set; }
+
+        public CustomType CustomType { get; set; }
+        public SetterType SetterType { get; set; }
+    }
+    public class CustomType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+    public class SetterType
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     public class ServerEventsServices : Service
     {
         public IServerEvents ServerEvents { get; set; }
@@ -273,6 +294,24 @@ namespace Chat
         public void Any(ResetServerEvents request)
         {
             ServerEvents.Reset();
+        }
+
+        public void Any(PostObjectToChannel request)
+        {
+            if (request.ToUserId != null)
+            {
+                if (request.CustomType != null)
+                    ServerEvents.NotifyUserId(request.ToUserId, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                if (request.SetterType != null)
+                    ServerEvents.NotifyUserId(request.ToUserId, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+            }
+            else
+            {
+                if (request.CustomType != null)
+                    ServerEvents.NotifyChannel(request.Channel, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                if (request.SetterType != null)
+                    ServerEvents.NotifyChannel(request.Channel, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+            }
         }
     }
 
