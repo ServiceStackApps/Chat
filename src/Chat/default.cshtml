@@ -124,6 +124,7 @@
             onHeartbeat: function (msg, e) { if (console) console.log("onHeartbeat", msg, e); },
             onJoin: refreshUsers,
             onLeave: refreshUsers,
+            onUpdate: refreshUsers,
             chat: function (m, e) {
                 addEntry({ id: m.id, userId: m.fromUserId, userName: m.fromName, msg: m.message, cls: m.private ? ' private' : '', channel: m.channel || e.channel });
             },
