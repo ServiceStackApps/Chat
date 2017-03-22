@@ -56,8 +56,11 @@ namespace Chat
                 container.Resolve<IServerEvents>().Start();
             }
 
-            // for lte IE 9 support
-            Plugins.Add(new CorsFeature());
+            // for lte IE 9 support + allow connections from local web dev apps
+            Plugins.Add(new CorsFeature(
+                allowOriginWhitelist: new[] { "http://localhost", "http://127.0.0.1:8080", "http://localhost:8080", "http://localhost:8081", "http://null.jsbin.com" },
+                allowCredentials: true,
+                allowedHeaders: "Content-Type, Allow, Authorization"));
         }
     }
 
