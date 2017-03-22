@@ -23,11 +23,11 @@ Chat showcases ServiceStack's new support for [Server Sent Events](http://www.ht
     - Display an image url
     - Raise DOM events
 
-### Feature Preview
-
-[![Chat Overview](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/apps/Chat/chat-overview.gif)](http://chat.servicestack.net)
+### Preview
 
 > Live Demo: [chat.servicestack.net](http://chat.servicestack.net)
+
+[![Chat Overview](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/apps/Chat/chat-overview.gif)](http://chat.servicestack.net)
 
 <img src="https://github.com/ServiceStack/Assets/blob/master/img/apps/Chat/vs-sln.png" width="257" align="right" hspace="10">
 
