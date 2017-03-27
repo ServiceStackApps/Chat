@@ -6,6 +6,7 @@ using System.Net;
 using Funq;
 using ServiceStack;
 using ServiceStack.Auth;
+using ServiceStack.Authentication.OAuth2;
 using ServiceStack.Configuration;
 using ServiceStack.Razor;
 using ServiceStack.Redis;
@@ -42,6 +43,7 @@ namespace Chat
                     new TwitterAuthProvider(AppSettings),   //Sign-in with Twitter
                     new FacebookAuthProvider(AppSettings),  //Sign-in with Facebook
                     new GithubAuthProvider(AppSettings),    //Sign-in with GitHub OAuth Provider
+                    new GoogleOAuth2Provider(AppSettings),  //Sign-in with Google OAuth2 Provider
                 }));
 
             container.RegisterAutoWiredAs<MemoryChatHistory, IChatHistory>();
