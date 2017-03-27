@@ -200,6 +200,11 @@
             How long should JWT Refresh Tokens be valid for. (default 365 days)
             </summary>
         </member>
+        <member name="P:ServiceStack.Auth.JwtAuthProviderReader.ValidateToken">
+            <summary>
+            Allow custom logic to invalidate JWT Tokens
+            </summary>
+        </member>
         <member name="P:ServiceStack.Auth.JwtAuthProviderReader.ValidateRefreshToken">
             <summary>
             Allow custom logic to invalidate Refresh Tokens
@@ -746,6 +751,105 @@
         <member name="P:ServiceStack.CacheResponseAttribute.NoCompression">
             <summary>
             Skip compression for this Cache Result
+            </summary>
+        </member>
+        <member name="T:ServiceStack.Caching.CacheClientWithPrefix">
+            <summary>
+            Decorates the ICacheClient (and its sibblings) prefixing every key with the given prefix
+            
+            Usefull for multi-tenant environments
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.CacheClientWithPrefixExtensions.WithPrefix(ServiceStack.Caching.ICacheClient,System.String)">
+            <summary>
+            Decorates the ICacheClient (and its sibblings) prefixing every key with the given prefix
+            
+            Usefull for multi-tenant environments
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheEntry.#ctor(System.Object,System.Nullable{System.DateTime})">
+            <summary>
+            Create new instance of CacheEntry.
+            </summary>
+        </member>
+        <member name="P:ServiceStack.Caching.MemoryCacheClient.CacheEntry.ExpiresAt">
+            <summary>UTC time at which CacheEntry expires.</summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheAdd(System.String,System.Object,System.Nullable{System.DateTime})">
+            <summary>
+            Stores The value with key only if such key doesn't exist at the server yet. 
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheSet(System.String,System.Object,System.DateTime)">
+            <summary>
+            Adds or replaces the value with key.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheSet(System.String,System.Object,System.Nullable{System.DateTime},System.Nullable{System.Int64})">
+            <summary>
+            Adds or replaces the value with key. 
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheReplace(System.String,System.Object,System.Nullable{System.DateTime})">
+            <summary>
+            Replace the value with specified key if it exists.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0)">
+            <summary>
+            Add the value with key to the cache, set to never expire.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0)">
+            <summary>
+            Add or replace the value with key to the cache, set to never expire.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0)">
+            <summary>
+            Replace the value with key in the cache, set to never expire.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0,System.DateTime)">
+            <summary>
+            Add the value with key to the cache, set to expire at specified DateTime.
+            </summary>
+            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
+            universal time is needed. The version of Add that takes a TimeSpan expiration is faster 
+            than using this method with a DateTime of Kind other than Utc, and is not affected by 
+            ambiguous local time during daylight savings/standard time transition.</remarks>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0,System.DateTime)">
+            <summary>
+            Add or replace the value with key to the cache, set to expire at specified DateTime.
+            </summary>
+            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
+            universal time is needed. The version of Set that takes a TimeSpan expiration is faster 
+            than using this method with a DateTime of Kind other than Utc, and is not affected by 
+            ambiguous local time during daylight savings/standard time transition.</remarks>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0,System.DateTime)">
+            <summary>
+            Replace the value with key in the cache, set to expire at specified DateTime.
+            </summary>
+            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
+            universal time is needed. The version of Replace that takes a TimeSpan expiration is faster 
+            than using this method with a DateTime of Kind other than Utc, and is not affected by 
+            ambiguous local time during daylight savings/standard time transition.</remarks>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0,System.TimeSpan)">
+            <summary>
+            Add the value with key to the cache, set to expire after specified TimeSpan.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0,System.TimeSpan)">
+            <summary>
+            Add or replace the value with key to the cache, set to expire after specified TimeSpan.
+            </summary>
+        </member>
+        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0,System.TimeSpan)">
+            <summary>
+            Replace the value with key in the cache, set to expire after specified TimeSpan.
             </summary>
         </member>
         <member name="T:ServiceStack.ContainerNetCoreExtensions">
@@ -6278,91 +6382,6 @@
             <param name="cacheClient">Cache client</param>
             <param name="regex">Regular expression pattern to search cache keys</param>
         </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheEntry.#ctor(System.Object,System.Nullable{System.DateTime})">
-            <summary>
-            Create new instance of CacheEntry.
-            </summary>
-        </member>
-        <member name="P:ServiceStack.Caching.MemoryCacheClient.CacheEntry.ExpiresAt">
-            <summary>UTC time at which CacheEntry expires.</summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheAdd(System.String,System.Object,System.Nullable{System.DateTime})">
-            <summary>
-            Stores The value with key only if such key doesn't exist at the server yet. 
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheSet(System.String,System.Object,System.DateTime)">
-            <summary>
-            Adds or replaces the value with key.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheSet(System.String,System.Object,System.Nullable{System.DateTime},System.Nullable{System.Int64})">
-            <summary>
-            Adds or replaces the value with key. 
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.CacheReplace(System.String,System.Object,System.Nullable{System.DateTime})">
-            <summary>
-            Replace the value with specified key if it exists.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0)">
-            <summary>
-            Add the value with key to the cache, set to never expire.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0)">
-            <summary>
-            Add or replace the value with key to the cache, set to never expire.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0)">
-            <summary>
-            Replace the value with key in the cache, set to never expire.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0,System.DateTime)">
-            <summary>
-            Add the value with key to the cache, set to expire at specified DateTime.
-            </summary>
-            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
-            universal time is needed. The version of Add that takes a TimeSpan expiration is faster 
-            than using this method with a DateTime of Kind other than Utc, and is not affected by 
-            ambiguous local time during daylight savings/standard time transition.</remarks>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0,System.DateTime)">
-            <summary>
-            Add or replace the value with key to the cache, set to expire at specified DateTime.
-            </summary>
-            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
-            universal time is needed. The version of Set that takes a TimeSpan expiration is faster 
-            than using this method with a DateTime of Kind other than Utc, and is not affected by 
-            ambiguous local time during daylight savings/standard time transition.</remarks>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0,System.DateTime)">
-            <summary>
-            Replace the value with key in the cache, set to expire at specified DateTime.
-            </summary>
-            <remarks>This method examines the DateTimeKind of expiresAt to determine if conversion to
-            universal time is needed. The version of Replace that takes a TimeSpan expiration is faster 
-            than using this method with a DateTime of Kind other than Utc, and is not affected by 
-            ambiguous local time during daylight savings/standard time transition.</remarks>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Add``1(System.String,``0,System.TimeSpan)">
-            <summary>
-            Add the value with key to the cache, set to expire after specified TimeSpan.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Set``1(System.String,``0,System.TimeSpan)">
-            <summary>
-            Add or replace the value with key to the cache, set to expire after specified TimeSpan.
-            </summary>
-        </member>
-        <member name="M:ServiceStack.Caching.MemoryCacheClient.Replace``1(System.String,``0,System.TimeSpan)">
-            <summary>
-            Replace the value with key in the cache, set to expire after specified TimeSpan.
-            </summary>
-        </member>
         <member name="T:ServiceStack.CorsFeature">
             <summary>
             Plugin adds support for Cross-origin resource sharing (CORS, see http://www.w3.org/TR/access-control/). 
@@ -7130,6 +7149,11 @@
             Add Request Filters for HTTP Requests
             </summary>
         </member>
+        <member name="P:ServiceStack.IAppHost.GlobalRequestFiltersAsync">
+            <summary>
+            Add Async Request Filters for HTTP Requests
+            </summary>
+        </member>
         <member name="P:ServiceStack.IAppHost.GlobalResponseFilters">
             <summary>
             Add Response Filters for HTTP Responses
@@ -7138,6 +7162,11 @@
         <member name="P:ServiceStack.IAppHost.GlobalMessageRequestFilters">
             <summary>
             Add Request Filters for MQ/TCP Requests
+            </summary>
+        </member>
+        <member name="P:ServiceStack.IAppHost.GlobalMessageRequestFiltersAsync">
+            <summary>
+            Add Async Request Filters for MQ/TCP Requests
             </summary>
         </member>
         <member name="P:ServiceStack.IAppHost.GlobalMessageResponseFilters">
