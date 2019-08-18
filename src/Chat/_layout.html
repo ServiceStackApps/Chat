@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ title }}</title>
+    <link href="/assets/img/favicon.png" rel="icon">
+    <link href="/assets/css/default.css" rel="stylesheet" />
+    {{#if debug}}<script>{{ '/js/hot-loader.js' | includeFile }}</script>{{/if}}
+
+    <script src="/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="/js/ss-utils.js"></script>
+    <style>
+        body {
+            background-image: url(/assets/img/bg.jpg);
+        }
+    </style>
+</head>
+<body>
+
+{{ page }}
+
+{{ scripts | raw }}
+
+</body>
+</html>

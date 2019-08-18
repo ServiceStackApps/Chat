@@ -6,33 +6,29 @@ using System.Net;
 using Funq;
 using ServiceStack;
 using ServiceStack.Auth;
-using ServiceStack.Authentication.OAuth2;
 using ServiceStack.Configuration;
-using ServiceStack.Razor;
 using ServiceStack.Redis;
-using ServiceStack.Text;
 
 namespace Chat
 {
-    public class AppHost : AppHostBase
+    public partial class AppHost : AppHostBase
     {
-        public AppHost() : base("Chat", typeof (ServerEventsServices).Assembly)
-        {
-            var liveSettings = "~/appsettings.txt".MapHostAbsolutePath();
-            AppSettings = File.Exists(liveSettings)
-                ? (IAppSettings)new TextFileSettings(liveSettings)
-                : new AppSettings();
-        }
+        public AppHost() : base("Chat", typeof (ServerEventsServices).Assembly) {}
+
+        public static void Load() => PreInit();
+        static partial void PreInit();
+        static partial void PreConfigure(IAppHost appHost);
 
         public override void Configure(Container container)
         {
-            JsConfig.EmitCamelCaseNames = true;
- 
-            Plugins.Add(new RazorFormat());
+            PreConfigure(this);
+
+            Plugins.Add(new SharpPagesFeature());
             Plugins.Add(new ServerEventsFeature());
             SetConfig(new HostConfig {
                 DefaultContentType = MimeTypes.Json,
                 AllowSessionIdsInHttpParams = true,
+                UseCamelCase = true,
             });
             this.CustomErrorHttpHandlers.Remove(HttpStatusCode.Forbidden);
 
@@ -43,7 +39,7 @@ namespace Chat
                     new TwitterAuthProvider(AppSettings),   //Sign-in with Twitter
                     new FacebookAuthProvider(AppSettings),  //Sign-in with Facebook
                     new GithubAuthProvider(AppSettings),    //Sign-in with GitHub OAuth Provider
-                    new GoogleOAuth2Provider(AppSettings),  //Sign-in with Google OAuth2 Provider
+                    new GoogleAuthProvider(AppSettings),    //Sign-in with Google OAuth Provider
                 }));
 
             container.RegisterAutoWiredAs<MemoryChatHistory, IChatHistory>();
@@ -97,8 +93,7 @@ namespace Chat
 
         public void Log(string channel, ChatMessage msg)
         {
-            List<ChatMessage> msgs;
-            if (!MessagesMap.TryGetValue(channel, out msgs))
+            if (!MessagesMap.TryGetValue(channel, out var msgs))
                 MessagesMap[channel] = msgs = new List<ChatMessage>();
 
             msgs.Add(msg);
@@ -106,8 +101,7 @@ namespace Chat
 
         public List<ChatMessage> GetRecentChatHistory(string channel, long? afterId, int? take)
         {
-            List<ChatMessage> msgs;
-            if (!MessagesMap.TryGetValue(channel, out msgs))
+            if (!MessagesMap.TryGetValue(channel, out var msgs))
                 return new List<ChatMessage>();
 
             var ret = msgs.Where(x => x.Id > afterId.GetValueOrDefault())
@@ -214,7 +208,7 @@ namespace Chat
                 throw HttpError.NotFound($"Subscription {request.From} does not exist");
 
             // Check to see if this is a private message to a specific user
-            var msg = PclExportClient.Instance.HtmlEncode(request.Message);
+            var msg = request.Message.HtmlEncode();
             if (request.ToUserId != null)
             {
                 // Only notify that specific user
@@ -243,7 +237,7 @@ namespace Chat
                 Channel = request.Channel,
                 FromUserId = sub.UserId,
                 FromName = sub.DisplayName,
-                Message = PclExportClient.Instance.HtmlEncode(request.Message),
+                Message = request.Message.HtmlEncode(),
             };
 
             // Check to see if this is a private message to a specific user
