@@ -208,7 +208,7 @@ namespace Chat
                 throw HttpError.NotFound($"Subscription {request.From} does not exist");
 
             // Check to see if this is a private message to a specific user
-            var msg = request.Message.HtmlEncode();
+            var msg = request.Message?.HtmlEncode();
             if (request.ToUserId != null)
             {
                 // Only notify that specific user
