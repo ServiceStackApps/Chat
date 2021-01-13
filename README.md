@@ -25,7 +25,7 @@ Chat showcases ServiceStack's new support for [Server Sent Events](http://www.ht
 
 ### Preview
 
-> Live Demo: [chat.servicestack.net](http://chat.netcore.io)
+> Live Demo: [chat.netcore.io](http://chat.netcore.io)
 
 [![Chat Overview](https://raw.githubusercontent.com/ServiceStack/Assets/master/img/apps/Chat/chat-overview.gif)](http://chat.netcore.io)
 
