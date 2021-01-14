@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Funq;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Redis;
+using ServiceStack.Script;
 
 namespace Chat
 {
@@ -197,7 +199,7 @@ namespace Chat
         public IChatHistory ChatHistory { get; set; }
         public IAppSettings AppSettings { get; set; }
 
-        public void Any(PostRawToChannel request)
+        public async Task Any(PostRawToChannel request)
         {
             if (!IsAuthenticated && AppSettings.Get("LimitRemoteControlToAuthenticatedUsers", false))
                 throw new HttpError(HttpStatusCode.Forbidden, "You must be authenticated to use remote control.");
@@ -212,16 +214,16 @@ namespace Chat
             if (request.ToUserId != null)
             {
                 // Only notify that specific user
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
+                await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector, msg);
             }
             else
             {
                 // Notify everyone in the channel for public messages
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
+                await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector, msg);
             }
         }
 
-        public object Any(PostChatToChannel request)
+        public async Task<object> Any(PostChatToChannel request)
         {
             // Ensure the subscription sending this notification is still active
             var sub = ServerEvents.GetSubscriptionInfo(request.From);
@@ -230,6 +232,12 @@ namespace Chat
 
             var channel = request.Channel;
 
+            var chatMessage = request.Message.IndexOf("{{", StringComparison.Ordinal) >= 0
+                ? await HostContext.AppHost.ScriptContext.RenderScriptAsync(request.Message, new Dictionary<string, object> {
+                    [nameof(Request)] = Request
+                })
+                : request.Message;
+
             // Create a DTO ChatMessage to hold all required info about this message
             var msg = new ChatMessage
             {
@@ -237,7 +245,7 @@ namespace Chat
                 Channel = request.Channel,
                 FromUserId = sub.UserId,
                 FromName = sub.DisplayName,
-                Message = request.Message.HtmlEncode(),
+                Message = chatMessage.HtmlEncode(),
             };
 
             // Check to see if this is a private message to a specific user
@@ -246,7 +254,7 @@ namespace Chat
                 // Mark the message as private so it can be displayed differently in Chat
                 msg.Private = true;
                 // Send the message to the specific user Id
-                ServerEvents.NotifyUserId(request.ToUserId, request.Selector, msg);
+                await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector, msg);
 
                 // Also provide UI feedback to the user sending the private message so they
                 // can see what was sent. Relay it to all senders active subscriptions 
@@ -255,13 +263,13 @@ namespace Chat
                 {
                     // Change the message format to contain who the private message was sent to
                     msg.Message = $"@{toSub.DisplayName}: {msg.Message}";
-                    ServerEvents.NotifySubscription(request.From, request.Selector, msg);
+                    await ServerEvents.NotifySubscriptionAsync(request.From, request.Selector, msg);
                 }
             }
             else
             {
                 // Notify everyone in the channel for public messages
-                ServerEvents.NotifyChannel(request.Channel, request.Selector, msg);
+                await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector, msg);
             }
 
             if (!msg.Private)
@@ -295,21 +303,21 @@ namespace Chat
             ServerEvents.Reset();
         }
 
-        public void Any(PostObjectToChannel request)
+        public async Task Any(PostObjectToChannel request)
         {
             if (request.ToUserId != null)
             {
                 if (request.CustomType != null)
-                    ServerEvents.NotifyUserId(request.ToUserId, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                    await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
                 if (request.SetterType != null)
-                    ServerEvents.NotifyUserId(request.ToUserId, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+                    await ServerEvents.NotifyUserIdAsync(request.ToUserId, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
             }
             else
             {
                 if (request.CustomType != null)
-                    ServerEvents.NotifyChannel(request.Channel, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
+                    await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector ?? Selector.Id<CustomType>(), request.CustomType);
                 if (request.SetterType != null)
-                    ServerEvents.NotifyChannel(request.Channel, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
+                    await ServerEvents.NotifyChannelAsync(request.Channel, request.Selector ?? Selector.Id<SetterType>(), request.SetterType);
             }
         }
     }

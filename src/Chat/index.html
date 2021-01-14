@@ -29,7 +29,7 @@ title: Chat Web App
     <div id="examples" data-click="sendCommand">
         <span style="position:absolute; top: 2px; right:7px" data-click="toggleExamples">hide</span>
         <h4><a href="http://templates.servicestack.net/docs/syntax">Example Templates</a></h4>
-        <div>{{ 'Cool' | padRight(7,'.') | repeat(3) }}</div>
+        <div>{{ 'Cool' |&gt; padRight(7,'.') |&gt; repeat(3) }}</div>
         <div>{{#each range(17)}}{{it * it}} {{/each}}</div>
         <div>My UserAgent: {{ Request.UserAgent }}</div>
         <div>@me What's my IP? {{ Request.RemoteIP }}</div>
@@ -142,7 +142,7 @@ $(document).bindHandlers({
         $(this).toggle();
     },
     sendCommand: function () {
-        $("#txtMsg").val($(this).html()).focus();
+        $("#txtMsg").val($(this).text()).focus();
     },
     privateMsg: function () {
         $txtMsg.val("@" + this.innerHTML + " ").focus();
