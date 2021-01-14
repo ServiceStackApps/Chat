@@ -1,9 +1,9 @@
 <!--
 title: Chat Web App
 -->
-{{ qs.channels ?? 'home' | assignTo: channels }}
+{{ var channels = qs.channels ?? 'home' }}
 <div id="top">
-    <a href="http://templates.servicestack.net/usecases/web-templates">
+    <a href="https://servicestack.net">
         <img src="https://raw.githubusercontent.com/ServiceStack/Assets/master/img/artwork/logo-32-inverted.png" style="height:28px; padding: 10px 0 0 0" />
     </a>
     <div id="social">
@@ -28,7 +28,7 @@ title: Chat Web App
     {{#raw}}
     <div id="examples" data-click="sendCommand">
         <span style="position:absolute; top: 2px; right:7px" data-click="toggleExamples">hide</span>
-        <h4><a href="http://templates.servicestack.net/docs/syntax">Example Templates</a></h4>
+        <h4><a href="https://sharpscript.net">Example #Script</a></h4>
         <div>{{ 'Cool' |&gt; padRight(7,'.') |&gt; repeat(3) }}</div>
         <div>{{#each range(17)}}{{it * it}} {{/each}}</div>
         <div>My UserAgent: {{ Request.UserAgent }}</div>
@@ -218,32 +218,32 @@ $("#btnSend").click(postMsg);
 $txtMsg.keydown(function (e) {
     var keycode = (e.keyCode ? e.keyCode : e.which);
     if ($.ss.getSelection()) {
-        if (keycode == '9' || keycode == '13' || keycode == '32' || keycode == '39') {
+        if (keycode === 9 || keycode === 13 || keycode === 32 || keycode === 39) {
             this.value += " ";
             if (this.setSelectionRange) this.setSelectionRange(this.value.length, this.value.length);
             return false;
         }
     }
-    if (keycode == '13') { //enter
+    if (keycode === 13) { //enter
         postMsg();
-    } else if (keycode == '38') { //up arrow
+    } else if (keycode === 38) { //up arrow
         historyIndex = Math.min(++historyIndex, msgHistory.length);
         $txtMsg.val(msgHistory[msgHistory.length - 1 - historyIndex]);
         return false;
     }
-    else if (keycode == '40') { //down arrow
+    else if (keycode === 40) { //down arrow
         historyIndex = Math.max(--historyIndex, -1);
         $txtMsg.val(msgHistory[msgHistory.length - 1 - historyIndex]);
     } else {
         historyIndex = -1;
     }
 }).keyup(function (e) {
-    if (!$.ss.getSelection() && this.value[0] == '@' && this.value.indexOf(' ') < 0) {
+    if (!$.ss.getSelection() && this.value[0] === '@' && this.value.indexOf(' ') < 0) {
         var partialVal = this.value.substring(1);
         var matchingNames = $.grep($("#users .user span")
             .map(function () { return this.innerHTML.replace(" ", ""); }), function (x) {
                 return x.substring(0, partialVal.length).toLowerCase() === partialVal.toLowerCase()
-                    && x.toLowerCase() != activeSub.displayName.toLowerCase();
+                    && x.toLowerCase() !== activeSub.displayName.toLowerCase();
             });
 
         if (matchingNames.length > 0) {
